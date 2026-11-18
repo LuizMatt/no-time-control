@@ -91,3 +91,21 @@ export interface DialogueLine {
 	speaker: string;
 	text: string;
 }
+
+export interface CombatTarget {
+	id?: number;
+	pos: { x: number; y: number };
+	height?: number;
+	era: Era;
+	hp: number;
+	maxHp: number;
+	exists(): boolean;
+	onDamaged?(damage: number, effective: boolean): void;
+}
+
+export interface WeaponHost {
+	pos: { x: number; y: number };
+	getFacing(): 1 | -1;
+	isBusy(): boolean;
+	exists(): boolean;
+}

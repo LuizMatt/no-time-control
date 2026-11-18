@@ -1,0 +1,42 @@
+import type { WeaponDef, WeaponId } from "../types";
+
+export const WEAPONS: Record<WeaponId, WeaponDef> = {
+	w1: {
+		id: "w1",
+		name: "Lâmina Ancestral",
+		key: "1",
+		era: "past",
+		kind: "melee",
+		damage: 25,
+		cooldown: 0.32,
+		range: 52,
+		piercing: true,
+		color: [242, 178, 76],
+	},
+	w2: {
+		id: "w2",
+		name: "Pistola Tática",
+		key: "2",
+		era: "present",
+		kind: "projectile",
+		damage: 18,
+		cooldown: 0.28,
+		range: 420,
+		projectileSpeed: 620,
+		piercing: false,
+		color: [110, 196, 255],
+	},
+	w3: {
+		id: "w3",
+		name: "Canhão de Plasma",
+		key: "3",
+		era: "future",
+		kind: "projectile",
+		damage: 22,
+		cooldown: 0.45,
+		range: 520,
+		projectileSpeed: 760,
+		piercing: true,
+		color: [0, 255, 224],
+	},
+};
