@@ -1,13 +1,14 @@
-import { GRAVITY, SCREEN_HEIGHT, SCREEN_WIDTH } from "../core/constants";
+import { GRAVITY, SCREEN_WIDTH } from "../core/constants";
 import { k } from "../core/k";
 import { prepareCheckpointRespawn, state } from "../core/state";
 import { ERAS } from "../data/eras";
 import { STAGE_1 } from "../data/stages";
-import { WEAPONS } from "../data/weapons";
 import { makeCheckpoint } from "../entities/checkpoint";
 import { makePlayer } from "../entities/player";
 import { applyEra, pickDifferentEra } from "../systems/eraDirector";
 import { spawnStageEnemies } from "../systems/spawner";
+import { initSpecialMeter } from "../systems/specialMeter";
+import { createHud } from "../ui/hud";
 
 /** Registers the main playable stage scene. */
 export function registerStageScene(): void {
@@ -57,6 +58,8 @@ export function registerStageScene(): void {
 		);
 		const player = makePlayer(spawnPos);
 		spawnStageEnemies(STAGE_1, state.currentEra);
+		initSpecialMeter();
+		createHud();
 
 		const mapWidth = STAGE_1.map[0].length * tileWidth;
 		const mapHeight = STAGE_1.map.length * tileHeight;
@@ -66,30 +69,11 @@ export function registerStageScene(): void {
 
 		k.camPos(clampCamX(player.pos.x), mapHeight / 2);
 
-		const formatHudText = (): string => {
-			const weapon = WEAPONS[state.activeWeapon];
-			return `Era: ${config.label}  |  Arma: \\[${weapon.key}\\] ${weapon.name}  |  HP: ${state.hp}/${state.maxHp}  |  CP: ${state.checkpointId}  |  \\[1/2/3\\] Arma  \\[H\\] Atacar  \\[J\\] Dash`;
-		};
-
-		const debugHud = k.add([
-			k.text(formatHudText(), { size: 13 }),
-			k.pos(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 22),
-			k.anchor("center"),
-			k.color(210, 215, 225),
-			k.fixed(),
-			k.z(50),
-		]);
-
 		k.onUpdate(() => {
 			const cam = k.camPos();
 			const targetX = clampCamX(player.pos.x);
 			const nextX = k.lerp(cam.x, targetX, Math.min(1, k.dt() * 10));
 			k.camPos(nextX, mapHeight / 2);
-
-			const nextText = formatHudText();
-			if (debugHud.text !== nextText) {
-				debugHud.text = nextText;
-			}
 		});
 
 		k.onKeyPress("r", () => {

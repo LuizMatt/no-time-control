@@ -8,6 +8,7 @@ import {
 	KEYS,
 	PLAYER_INVULN_TIME,
 	PLAYER_SPEED,
+	WEREWOLF_JUMP_MULT,
 	WEREWOLF_SPEED_MULT,
 } from "../core/constants";
 import { k } from "../core/k";
@@ -39,6 +40,7 @@ export function makePlayer(spawnPos: Vec2) {
 		k.area(),
 		k.body(),
 		k.anchor("bot"),
+		k.scale(1),
 		k.color(235, 240, 250),
 		k.opacity(1),
 		k.z(10),
@@ -71,12 +73,39 @@ export function makePlayer(spawnPos: Vec2) {
 		}
 	});
 
+	const aura = player.add([
+		k.rect(38, 54, { radius: 6 }),
+		k.pos(0, 4),
+		k.anchor("bot"),
+		k.color(255, 75, 110),
+		k.opacity(0),
+		k.z(-1),
+	]);
+
 	const indicator = player.add([
 		k.rect(8, 6),
 		k.pos(8, -32),
 		k.anchor("center"),
 		k.color(40, 50, 70),
 	]);
+
+	function applyTransformVisual(transformed: boolean): void {
+		if (!player.exists()) return;
+		if (transformed) {
+			player.color = k.rgb(220, 45, 85);
+			player.scale = k.vec2(1.22, 1.25);
+			indicator.color = k.rgb(255, 220, 120);
+		} else {
+			player.color = k.rgb(235, 240, 250);
+			player.scale = k.vec2(1, 1);
+			indicator.color = k.rgb(40, 50, 70);
+			aura.opacity = 0;
+		}
+	}
+
+	player.on("transform:start", () => applyTransformVisual(true));
+	player.on("transform:end", () => applyTransformVisual(false));
+	applyTransformVisual(state.transformed);
 
 	player.onCollideUpdate((obj) => {
 		if (obj.is("hazard")) {
@@ -86,7 +115,8 @@ export function makePlayer(spawnPos: Vec2) {
 
 	k.onKeyPress(KEYS.JUMP, () => {
 		if (!isDead && !isDashing && player.isGrounded()) {
-			player.jump(JUMP_FORCE);
+			const jumpForce = JUMP_FORCE * (state.transformed ? WEREWOLF_JUMP_MULT : 1);
+			player.jump(jumpForce);
 		}
 	});
 
@@ -115,11 +145,15 @@ export function makePlayer(spawnPos: Vec2) {
 			afterimageTimer -= dt;
 			if (afterimageTimer <= 0) {
 				afterimageTimer = 0.04;
+				const ghostColor: [number, number, number] = state.transformed
+					? [255, 75, 110]
+					: [180, 210, 255];
 				const ghost = k.add([
 					k.rect(28, 44),
 					k.pos(player.pos),
 					k.anchor("bot"),
-					k.color(180, 210, 255),
+					k.scale(player.scale),
+					k.color(...ghostColor),
 					k.opacity(0.45),
 					k.z(9),
 				]);
@@ -145,6 +179,10 @@ export function makePlayer(spawnPos: Vec2) {
 				const speed = PLAYER_SPEED * (state.transformed ? WEREWOLF_SPEED_MULT : 1);
 				player.move(dir * speed, 0);
 			}
+		}
+
+		if (state.transformed) {
+			aura.opacity = 0.25 + 0.18 * Math.sin(k.time() * 14);
 		}
 
 		if (invulnTimer > 0 && !isDashing) {
