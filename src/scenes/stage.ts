@@ -3,9 +3,11 @@ import { k } from "../core/k";
 import { prepareCheckpointRespawn, state } from "../core/state";
 import { ERAS } from "../data/eras";
 import { STAGE_1 } from "../data/stages";
+import { WEAPONS } from "../data/weapons";
 import { makeCheckpoint } from "../entities/checkpoint";
 import { makePlayer } from "../entities/player";
 import { applyEra, pickDifferentEra } from "../systems/eraDirector";
+import { spawnStageEnemies } from "../systems/spawner";
 
 /** Registers the main playable stage scene. */
 export function registerStageScene(): void {
@@ -54,6 +56,7 @@ export function registerStageScene(): void {
 			activeCp.ty * tileHeight,
 		);
 		const player = makePlayer(spawnPos);
+		spawnStageEnemies(STAGE_1, state.currentEra);
 
 		const mapWidth = STAGE_1.map[0].length * tileWidth;
 		const mapHeight = STAGE_1.map.length * tileHeight;
@@ -63,8 +66,10 @@ export function registerStageScene(): void {
 
 		k.camPos(clampCamX(player.pos.x), mapHeight / 2);
 
-		const formatHudText = (): string =>
-			`Era: ${config.label}  |  HP: ${state.hp}/${state.maxHp}  |  CP: ${state.checkpointId}  |  Mortes: ${state.deaths}  |  \\[A/D\\] Mover  \\[Espaço\\] Pular  \\[J\\] Dash  \\[R\\] Respawn`;
+		const formatHudText = (): string => {
+			const weapon = WEAPONS[state.activeWeapon];
+			return `Era: ${config.label}  |  Arma: \\[${weapon.key}\\] ${weapon.name}  |  HP: ${state.hp}/${state.maxHp}  |  CP: ${state.checkpointId}  |  \\[1/2/3\\] Arma  \\[H\\] Atacar  \\[J\\] Dash`;
+		};
 
 		const debugHud = k.add([
 			k.text(formatHudText(), { size: 13 }),

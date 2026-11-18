@@ -13,6 +13,7 @@ import {
 import { k } from "../core/k";
 import { prepareCheckpointRespawn, state } from "../core/state";
 import { pickDifferentEra } from "../systems/eraDirector";
+import { setupWeaponControls } from "../systems/weaponSystem";
 
 /** Creates the player entity with movement, jump, dash, i-frames, and temporal respawn on death. */
 export function makePlayer(spawnPos: Vec2) {
@@ -52,8 +53,23 @@ export function makePlayer(spawnPos: Vec2) {
 					triggerPlayerDeath();
 				}
 			},
+			getFacing(): 1 | -1 {
+				return facing;
+			},
+			isBusy(): boolean {
+				return isDead || isDashing;
+			},
+			isInvulnerable(): boolean {
+				return isDead || invulnTimer > 0 || isDashing;
+			},
 		},
 	]);
+
+	player.onBeforePhysicsResolve((col) => {
+		if (!col.target.is("platform")) {
+			col.preventResolution();
+		}
+	});
 
 	const indicator = player.add([
 		k.rect(8, 6),
@@ -79,7 +95,7 @@ export function makePlayer(spawnPos: Vec2) {
 			isDashing = true;
 			dashTimer = DASH_DURATION;
 			dashCooldownTimer = DASH_COOLDOWN;
-			invulnTimer = Math.max(invulnTimer, DASH_DURATION);
+			invulnTimer = Math.max(invulnTimer, DASH_DURATION + 0.06);
 			afterimageTimer = 0;
 		}
 	});
@@ -141,6 +157,8 @@ export function makePlayer(spawnPos: Vec2) {
 			triggerPlayerDeath();
 		}
 	});
+
+	setupWeaponControls(player);
 
 	return player;
 }
