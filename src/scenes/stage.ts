@@ -30,7 +30,6 @@ export function registerStageScene(): void {
 					k.color(...config.platformColor),
 					k.area(),
 					k.body({ isStatic: true }),
-					k.offscreen({ hide: true }),
 					"platform",
 				],
 				"^": () => [
@@ -41,7 +40,6 @@ export function registerStageScene(): void {
 					]),
 					k.color(220, 70, 70),
 					k.area({ shape: new k.Rect(k.vec2(6, tileHeight - 14), tileWidth - 12, 14) }),
-					k.offscreen({ hide: true }),
 					"hazard",
 				],
 			},

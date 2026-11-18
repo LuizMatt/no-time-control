@@ -16,6 +16,10 @@ import { prepareCheckpointRespawn, state } from "../core/state";
 import { pickDifferentEra } from "../systems/eraDirector";
 import { setupWeaponControls } from "../systems/weaponSystem";
 
+const BASE_SCALE = 2;
+const WEREWOLF_SCALE_X = 2;
+const WEREWOLF_SCALE_Y = 2;
+
 /** Creates the player entity with movement, jump, dash, i-frames, and temporal respawn on death. */
 export function makePlayer(spawnPos: Vec2) {
 	let facing: 1 | -1 = 1;
@@ -25,23 +29,45 @@ export function makePlayer(spawnPos: Vec2) {
 	let invulnTimer = 0;
 	let afterimageTimer = 0;
 	let isDead = false;
+	let currentAnim: "idle" | "run" | "dash" | "death" = "idle";
 
-	function triggerPlayerDeath(): void {
+	function playAnim(anim: "idle" | "run" | "dash" | "death"): void {
+		if (currentAnim === anim && player.getCurAnim()?.name === anim) return;
+		currentAnim = anim;
+		player.play(anim);
+	}
+
+	function triggerPlayerDeath(instant = false): void {
 		if (isDead) return;
 		isDead = true;
-		const nextEra = pickDifferentEra(state.currentEra);
-		prepareCheckpointRespawn(nextEra);
-		k.go("stage");
+		isDashing = false;
+		player.vel.x = 0;
+		player.opacity = 1;
+		aura.opacity = 0;
+
+		if (instant) {
+			const nextEra = pickDifferentEra(state.currentEra);
+			prepareCheckpointRespawn(nextEra);
+			k.go("stage");
+			return;
+		}
+
+		playAnim("death");
+		k.wait(0.85, () => {
+			const nextEra = pickDifferentEra(state.currentEra);
+			prepareCheckpointRespawn(nextEra);
+			k.go("stage");
+		});
 	}
 
 	const player = k.add([
-		k.rect(28, 44),
+		k.sprite("player", { anim: "idle" }),
 		k.pos(spawnPos),
-		k.area(),
+		k.area({ shape: new k.Rect(k.vec2(-1, -1), 14, 29) }),
 		k.body(),
 		k.anchor("bot"),
-		k.scale(1),
-		k.color(235, 240, 250),
+		k.scale(BASE_SCALE),
+		k.color(255, 255, 255),
 		k.opacity(1),
 		k.z(10),
 		"player",
@@ -52,7 +78,7 @@ export function makePlayer(spawnPos: Vec2) {
 				invulnTimer = PLAYER_INVULN_TIME;
 				k.trigger("player:hurt", "player");
 				if (state.hp <= 0) {
-					triggerPlayerDeath();
+					triggerPlayerDeath(false);
 				}
 			},
 			getFacing(): 1 | -1 {
@@ -74,31 +100,22 @@ export function makePlayer(spawnPos: Vec2) {
 	});
 
 	const aura = player.add([
-		k.rect(38, 54, { radius: 6 }),
-		k.pos(0, 4),
+		k.rect(24, 34, { radius: 5 }),
+		k.pos(0, 2),
 		k.anchor("bot"),
 		k.color(255, 75, 110),
 		k.opacity(0),
 		k.z(-1),
 	]);
 
-	const indicator = player.add([
-		k.rect(8, 6),
-		k.pos(8, -32),
-		k.anchor("center"),
-		k.color(40, 50, 70),
-	]);
-
 	function applyTransformVisual(transformed: boolean): void {
 		if (!player.exists()) return;
 		if (transformed) {
-			player.color = k.rgb(220, 45, 85);
-			player.scale = k.vec2(1.22, 1.25);
-			indicator.color = k.rgb(255, 220, 120);
+			player.color = k.rgb(255, 130, 155);
+			player.scale = k.vec2(WEREWOLF_SCALE_X, WEREWOLF_SCALE_Y);
 		} else {
-			player.color = k.rgb(235, 240, 250);
-			player.scale = k.vec2(1, 1);
-			indicator.color = k.rgb(40, 50, 70);
+			player.color = k.rgb(255, 255, 255);
+			player.scale = k.vec2(BASE_SCALE, BASE_SCALE);
 			aura.opacity = 0;
 		}
 	}
@@ -127,6 +144,7 @@ export function makePlayer(spawnPos: Vec2) {
 			dashCooldownTimer = DASH_COOLDOWN;
 			invulnTimer = Math.max(invulnTimer, DASH_DURATION + 0.06);
 			afterimageTimer = 0;
+			playAnim("dash");
 		}
 	});
 
@@ -146,10 +164,10 @@ export function makePlayer(spawnPos: Vec2) {
 			if (afterimageTimer <= 0) {
 				afterimageTimer = 0.04;
 				const ghostColor: [number, number, number] = state.transformed
-					? [255, 75, 110]
-					: [180, 210, 255];
+					? [255, 95, 130]
+					: [180, 220, 255];
 				const ghost = k.add([
-					k.rect(28, 44),
+					k.sprite("player", { frame: player.frame }),
 					k.pos(player.pos),
 					k.anchor("bot"),
 					k.scale(player.scale),
@@ -157,6 +175,7 @@ export function makePlayer(spawnPos: Vec2) {
 					k.opacity(0.45),
 					k.z(9),
 				]);
+				ghost.flipX = player.flipX;
 				ghost.onUpdate(() => {
 					ghost.opacity -= (0.45 / 0.15) * k.dt();
 					if (ghost.opacity <= 0) {
@@ -175,9 +194,12 @@ export function makePlayer(spawnPos: Vec2) {
 
 			if (dir !== 0) {
 				facing = dir > 0 ? 1 : -1;
-				indicator.pos.x = facing === 1 ? 8 : -8;
+				player.flipX = facing === -1;
 				const speed = PLAYER_SPEED * (state.transformed ? WEREWOLF_SPEED_MULT : 1);
 				player.move(dir * speed, 0);
+				playAnim("run");
+			} else {
+				playAnim("idle");
 			}
 		}
 
@@ -186,13 +208,25 @@ export function makePlayer(spawnPos: Vec2) {
 		}
 
 		if (invulnTimer > 0 && !isDashing) {
-			player.opacity = Math.floor(k.time() * 20) % 2 === 0 ? 0.4 : 1;
+			const flashHit = invulnTimer > PLAYER_INVULN_TIME - 0.15;
+			if (flashHit) {
+				player.color = k.rgb(245, 220, 155);
+				player.opacity = 1;
+			} else {
+				player.color = state.transformed
+					? k.rgb(255, 130, 155)
+					: k.rgb(255, 255, 255);
+				player.opacity = Math.floor(k.time() * 20) % 2 === 0 ? 0.4 : 1;
+			}
 		} else {
+			player.color = state.transformed
+				? k.rgb(255, 130, 155)
+				: k.rgb(255, 255, 255);
 			player.opacity = 1;
 		}
 
 		if (player.pos.y > FALL_DEATH_Y) {
-			triggerPlayerDeath();
+			triggerPlayerDeath(true);
 		}
 	});
 
