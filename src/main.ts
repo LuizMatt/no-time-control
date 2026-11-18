@@ -1,11 +1,8 @@
-import kaplay from "kaplay";
-// import "kaplay/global"; // uncomment if you want to use without the k. prefix
+import { k } from "./core/k";
+import { registerBootScene } from "./scenes/boot";
+import { registerStageScene } from "./scenes/stage";
 
-const k = kaplay();
+registerBootScene();
+registerStageScene();
 
-k.loadRoot("./"); // A good idea for Itch.io publishing later
-k.loadSprite("bean", "sprites/bean.png");
-
-k.add([k.pos(120, 80), k.sprite("bean")]);
-
-k.onClick(() => k.addKaboom(k.mousePos()));
+k.go("boot");
