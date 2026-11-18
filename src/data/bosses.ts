@@ -1,0 +1,43 @@
+import type { BossDef } from "../types";
+
+export const BOSSES: Record<string, BossDef> = {
+	boss_past: {
+		id: "boss_past",
+		name: "Carcereiro Primordial",
+		era: "past",
+		hp: 320,
+		speed: 220,
+		contactDamage: 1,
+		pattern: "chargeMelee",
+		attackCooldown: 2.0,
+		width: 56,
+		height: 68,
+		color: [232, 148, 58],
+	},
+	boss_present: {
+		id: "boss_present",
+		name: "Executor Balístico",
+		era: "present",
+		hp: 280,
+		speed: 170,
+		contactDamage: 1,
+		pattern: "projectileBarrage",
+		attackCooldown: 1.8,
+		width: 48,
+		height: 64,
+		color: [88, 178, 255],
+	},
+	boss_future: {
+		id: "boss_future",
+		name: "Arconte Crono-Sintético",
+		era: "future",
+		hp: 300,
+		speed: 190,
+		contactDamage: 1,
+		pattern: "teleportLaser",
+		attackCooldown: 2.2,
+		width: 50,
+		height: 66,
+		color: [0, 240, 210],
+	},
+};

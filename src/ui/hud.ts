@@ -6,6 +6,7 @@ import {
 } from "../core/constants";
 import { k } from "../core/k";
 import { state } from "../core/state";
+import { BOSSES } from "../data/bosses";
 import { ERAS } from "../data/eras";
 import { WEAPONS } from "../data/weapons";
 import type { Era } from "../types";
@@ -172,8 +173,11 @@ export function createHud(): void {
 		k.z(52),
 	]);
 
+	const currentBossDef = BOSSES[eraConfig.bossId];
 	let bossHpRatio = 1;
-	let bossLabel = "BOSS";
+	let bossLabel = currentBossDef
+		? `${currentBossDef.name.toUpperCase()} \\[${eraConfig.label}\\]`
+		: "BOSS";
 
 	k.on("boss:updated", "boss", (_obj, payload: { hp: number; maxHp: number; name: string; era: Era }) => {
 		if (!payload) return;
