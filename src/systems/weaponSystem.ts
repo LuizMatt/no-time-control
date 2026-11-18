@@ -115,10 +115,24 @@ function performMeleeSlash(
 		k.anchor("center"),
 		k.area(),
 		k.color(...color),
-		k.opacity(0.65),
+		k.opacity(weaponEra === "universal" ? 0.28 : 0.65),
 		k.z(16),
 		"playerMelee",
 	]);
+
+	const clawMarks =
+		weaponEra === "universal"
+			? [-12, 0, 12].map((offsetY) =>
+					hitbox.add([
+						k.rect(range * 0.88, 5, { radius: 2 }),
+						k.pos(0, offsetY),
+						k.anchor("center"),
+						k.rotate(facing * -20),
+						k.color(255, 225, 235),
+						k.opacity(0.95),
+					]),
+				)
+			: [];
 
 	hitbox.onCollide("combatTarget", (obj: GameObj) => {
 		const target = obj as unknown as CombatTarget;
@@ -142,7 +156,11 @@ function performMeleeSlash(
 			hitbox.pos.x = player.pos.x + currentFacing * (range / 2 + 10);
 			hitbox.pos.y = player.pos.y - 22;
 		}
-		hitbox.opacity = Math.max(0, 0.65 * (1 - elapsed / duration));
+		const fade = Math.max(0, 1 - elapsed / duration);
+		hitbox.opacity = (weaponEra === "universal" ? 0.28 : 0.65) * fade;
+		for (const mark of clawMarks) {
+			mark.opacity = 0.95 * fade;
+		}
 		if (elapsed >= duration) {
 			hitbox.destroy();
 		}
