@@ -1,8 +1,10 @@
 {
 	"compilerOptions": {
+		"strict": true,
+		"skipLibCheck": true,
 		"noEmit": true,
 		"target": "esnext",
-		"moduleResolution": "node"
+		"moduleResolution": "bundler"
 	},
 	"include": [
 		"src/**/*.ts"
