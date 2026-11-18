@@ -1,5 +1,6 @@
 import type { GameObj, Vec2 } from "kaplay";
 import { k } from "../core/k";
+import { shouldResolvePlatformCollision } from "../core/physics";
 import { state } from "../core/state";
 import type { BossDef } from "../types";
 import { spawnEnemyProjectile } from "./projectile";
@@ -110,7 +111,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 	]);
 
 	boss.onBeforePhysicsResolve((col) => {
-		if (!col.target.is("platform")) {
+		if (!shouldResolvePlatformCollision(col)) {
 			col.preventResolution();
 		}
 	});

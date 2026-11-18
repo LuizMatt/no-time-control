@@ -1,6 +1,7 @@
 import type { GameObj, Vec2 } from "kaplay";
 import { FALL_DEATH_Y } from "../core/constants";
 import { k } from "../core/k";
+import { shouldResolvePlatformCollision } from "../core/physics";
 import type { EnemyDef } from "../types";
 import { spawnEnemyProjectile } from "./projectile";
 
@@ -55,7 +56,7 @@ export function makeEnemy(def: EnemyDef, spawnPos: Vec2): GameObj {
 	]);
 
 	enemy.onBeforePhysicsResolve((col) => {
-		if (isFlying || !col.target.is("platform")) {
+		if (isFlying || !shouldResolvePlatformCollision(col)) {
 			col.preventResolution();
 		}
 	});

@@ -12,6 +12,7 @@ import {
 	WEREWOLF_SPEED_MULT,
 } from "../core/constants";
 import { k } from "../core/k";
+import { shouldResolvePlatformCollision } from "../core/physics";
 import { prepareCheckpointRespawn, state } from "../core/state";
 import { pickDifferentEra } from "../systems/eraDirector";
 import { setupWeaponControls } from "../systems/weaponSystem";
@@ -21,7 +22,7 @@ const WEREWOLF_SCALE_X = 2;
 const WEREWOLF_SCALE_Y = 2;
 
 /** Creates the player entity with movement, jump, dash, i-frames, and temporal respawn on death. */
-export function makePlayer(spawnPos: Vec2) {
+export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	let facing: 1 | -1 = 1;
 	let isDashing = false;
 	let dashTimer = 0;
@@ -94,7 +95,7 @@ export function makePlayer(spawnPos: Vec2) {
 	]);
 
 	player.onBeforePhysicsResolve((col) => {
-		if (!col.target.is("platform")) {
+		if (!shouldResolvePlatformCollision(col)) {
 			col.preventResolution();
 		}
 	});
@@ -225,7 +226,7 @@ export function makePlayer(spawnPos: Vec2) {
 			player.opacity = 1;
 		}
 
-		if (player.pos.y > FALL_DEATH_Y) {
+		if (player.pos.y > fallDeathY) {
 			triggerPlayerDeath(true);
 		}
 	});
