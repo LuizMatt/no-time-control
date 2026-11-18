@@ -27,4 +27,19 @@ export function loadAssets(): void {
 			empty: { from: 11, to: 11 },
 		},
 	});
+
+	k.loadSprite("past-tileset", "sprites/past-tileset.png", {
+		sliceX: 8,
+		sliceY: 3,
+	});
+
+	k.loadSprite("present-tileset", "sprites/present-tileset.png", {
+		sliceX: 8,
+		sliceY: 3,
+	});
+
+	k.loadSprite("future-tileset", "sprites/future-tileset.png", {
+		sliceX: 8,
+		sliceY: 3,
+	});
 }
