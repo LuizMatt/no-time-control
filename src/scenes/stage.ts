@@ -4,13 +4,22 @@ import { prepareCheckpointRespawn, resetRun, state } from "../core/state";
 import { BOSSES } from "../data/bosses";
 import { ERAS } from "../data/eras";
 import { STAGE_1 } from "../data/stages";
+import { ERA_TILESETS } from "../data/tilesets";
 import { makeBoss } from "../entities/boss";
 import { makeCheckpoint } from "../entities/checkpoint";
 import { makePlayer } from "../entities/player";
 import { applyEra, pickDifferentEra, pickEra } from "../systems/eraDirector";
 import { spawnStageEnemies } from "../systems/spawner";
 import { initSpecialMeter } from "../systems/specialMeter";
+import { buildStageEnvironment } from "../systems/stageBuilder";
 import { createHud } from "../ui/hud";
+
+const BOSS_GATE_TX = 103;
+const CAM_LOOKAHEAD_Y = 48;
+
+function clamp(val: number, min: number, max: number): number {
+	return Math.max(min, Math.min(max, val));
+}
 
 /** Registers the main playable stage scene. */
 export function registerStageScene(): void {
@@ -20,30 +29,11 @@ export function registerStageScene(): void {
 
 		const config = ERAS[state.currentEra];
 		const { tileWidth, tileHeight } = STAGE_1;
-
-		k.addLevel(STAGE_1.map, {
-			tileWidth,
-			tileHeight,
-			tiles: {
-				"#": () => [
-					k.rect(tileWidth, tileHeight),
-					k.color(...config.platformColor),
-					k.area(),
-					k.body({ isStatic: true }),
-					"platform",
-				],
-				"^": () => [
-					k.polygon([
-						k.vec2(4, tileHeight),
-						k.vec2(tileWidth / 2, tileHeight - 16),
-						k.vec2(tileWidth - 4, tileHeight),
-					]),
-					k.color(220, 70, 70),
-					k.area({ shape: new k.Rect(k.vec2(6, tileHeight - 14), tileWidth - 12, 14) }),
-					"hazard",
-				],
-			},
-		});
+		const { mapWidth, mapHeight, arenaTopRow, arenaFloorRow } = buildStageEnvironment(
+			STAGE_1,
+			state.currentEra,
+		);
+		const tileset = ERA_TILESETS[state.currentEra];
 
 		for (const cp of STAGE_1.checkpoints) {
 			makeCheckpoint(cp, tileWidth, tileHeight);
@@ -56,18 +46,20 @@ export function registerStageScene(): void {
 			activeCp.tx * tileWidth + tileWidth / 2,
 			activeCp.ty * tileHeight,
 		);
-		const player = makePlayer(spawnPos);
+		const player = makePlayer(spawnPos, mapHeight + 120);
 		spawnStageEnemies(STAGE_1, state.currentEra);
 		initSpecialMeter();
 		createHud();
 
-		const mapWidth = STAGE_1.map[0].length * tileWidth;
-		const mapHeight = STAGE_1.map.length * tileHeight;
 		const minCamX = SCREEN_WIDTH / 2;
 		const maxCamX = Math.max(minCamX, mapWidth - SCREEN_WIDTH / 2);
-		const clampCamX = (x: number): number => Math.max(minCamX, Math.min(maxCamX, x));
+		const minCamY = SCREEN_HEIGHT / 2;
+		const maxCamY = Math.max(minCamY, mapHeight - SCREEN_HEIGHT / 2);
 
-		k.camPos(clampCamX(player.pos.x), mapHeight / 2);
+		k.camPos(
+			clamp(player.pos.x, minCamX, maxCamX),
+			clamp(player.pos.y - CAM_LOOKAHEAD_Y, minCamY, maxCamY),
+		);
 
 		let bossSpawned = false;
 		let victoryShown = false;
@@ -78,20 +70,22 @@ export function registerStageScene(): void {
 			state.checkpointId = Math.max(state.checkpointId, 3);
 
 			// Lock the arena entrance behind the player
-			k.add([
-				k.rect(tileWidth, 14 * tileHeight),
-				k.pos(103 * tileWidth, tileHeight),
-				k.color(...config.platformColor),
-				k.outline(2, k.rgb(...config.accentColor)),
-				k.area(),
-				k.body({ isStatic: true }),
-				k.z(6),
-				"platform",
-				"arenaGate",
-			]);
+			for (let row = arenaFloorRow - 1; row >= arenaTopRow; row--) {
+				if (STAGE_1.map[row][BOSS_GATE_TX] === "#") break;
+				const frame = tileset.pillarMid[row % tileset.pillarMid.length];
+				k.add([
+					k.sprite(tileset.sprite, { frame }),
+					k.pos(BOSS_GATE_TX * tileWidth, row * tileHeight),
+					k.area({ collisionIgnore: ["platform", "hazard"] }),
+					k.body({ isStatic: true }),
+					k.z(6),
+					"platform",
+					"arenaGate",
+				]);
+			}
 
 			const arenaBounds = {
-				leftX: 104 * tileWidth,
+				leftX: (BOSS_GATE_TX + 1) * tileWidth,
 				rightX: (STAGE_1.map[0].length - 1) * tileWidth,
 				floorY: STAGE_1.bossSpawn.ty * tileHeight,
 			};
@@ -151,9 +145,10 @@ export function registerStageScene(): void {
 
 		k.onUpdate(() => {
 			const cam = k.camPos();
-			const targetX = clampCamX(player.pos.x);
-			const nextX = k.lerp(cam.x, targetX, Math.min(1, k.dt() * 10));
-			k.camPos(nextX, mapHeight / 2);
+			const targetX = clamp(player.pos.x, minCamX, maxCamX);
+			const targetY = clamp(player.pos.y - CAM_LOOKAHEAD_Y, minCamY, maxCamY);
+			const smooth = Math.min(1, k.dt() * 10);
+			k.camPos(k.lerp(cam.x, targetX, smooth), k.lerp(cam.y, targetY, smooth));
 
 			if (
 				!bossSpawned &&
