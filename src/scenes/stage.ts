@@ -14,7 +14,7 @@ import { initSpecialMeter } from "../systems/specialMeter";
 import { buildStageEnvironment } from "../systems/stageBuilder";
 import { createHud } from "../ui/hud";
 
-const BOSS_GATE_TX = 103;
+const BOSS_GATE_TX = 117;
 const CAM_LOOKAHEAD_Y = 48;
 
 function clamp(val: number, min: number, max: number): number {
@@ -67,7 +67,7 @@ export function registerStageScene(): void {
 		const spawnBossArena = (): void => {
 			bossSpawned = true;
 			state.bossActive = true;
-			state.checkpointId = Math.max(state.checkpointId, 3);
+			state.checkpointId = Math.max(state.checkpointId, 2);
 
 			// Lock the arena entrance behind the player
 			const gateEntry = tileset.props.arenaGate;
