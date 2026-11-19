@@ -12,6 +12,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 26,
 		height: 38,
 		color: [214, 132, 56],
+		sprite: "enemy-past-grunt",
 	},
 	past_brute: {
 		id: "past_brute",
@@ -24,6 +25,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 36,
 		height: 48,
 		color: [184, 78, 42],
+		sprite: "enemy-past-brute",
 	},
 	present_shooter: {
 		id: "present_shooter",
@@ -36,6 +38,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 26,
 		height: 42,
 		color: [90, 165, 235],
+		sprite: "enemy-present-shooter",
 	},
 	present_drone: {
 		id: "present_drone",
@@ -48,6 +51,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 28,
 		height: 22,
 		color: [140, 210, 255],
+		sprite: "enemy-present-drone",
 	},
 	future_stalker: {
 		id: "future_stalker",
@@ -60,6 +64,7 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 26,
 		height: 40,
 		color: [0, 230, 195],
+		sprite: "enemy-future-stalker",
 	},
 	future_turret: {
 		id: "future_turret",
@@ -72,5 +77,6 @@ export const ENEMIES: Record<string, EnemyDef> = {
 		width: 32,
 		height: 44,
 		color: [175, 95, 255],
+		sprite: "enemy-future-turret",
 	},
 };

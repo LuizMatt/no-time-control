@@ -24,13 +24,14 @@ export interface EnemyProjectileOpts {
 	range: number;
 	damage: number;
 	color: [number, number, number];
+	spriteName?: string;
 }
 
 const PROJECTILE_SPRITE_SCALE = 1.25;
 
 function spawnImpactEffect(
 	pos: Vec2,
-	spriteName: PlayerProjectileSprite,
+	spriteName: string,
 	dir: 1 | -1,
 ): void {
 	const fx = k.add([
@@ -142,16 +143,29 @@ export function spawnPlayerProjectile(opts: PlayerProjectileOpts): GameObj {
 export function spawnEnemyProjectile(opts: EnemyProjectileOpts): GameObj {
 	const startPos = opts.pos.clone();
 	const unitDir = opts.dir.len() > 0 ? opts.dir.unit() : k.vec2(1, 0);
+	const facingDir: 1 | -1 = unitDir.x < 0 ? -1 : 1;
 
-	const proj = k.add([
-		k.rect(12, 6, { radius: 2 }),
-		k.pos(opts.pos),
-		k.anchor("center"),
-		k.area(),
-		k.color(...opts.color),
-		k.z(15),
-		"enemyProjectile",
-	]);
+	const proj = opts.spriteName
+		? k.add([
+				k.sprite(opts.spriteName, { anim: "fly", flipX: facingDir === -1 }),
+				k.pos(opts.pos),
+				k.anchor("center"),
+				k.scale(PROJECTILE_SPRITE_SCALE),
+				k.area({
+					shape: new k.Rect(k.vec2(-7, -4), 14, 8),
+				}),
+				k.z(15),
+				"enemyProjectile",
+			])
+		: k.add([
+				k.rect(12, 6, { radius: 2 }),
+				k.pos(opts.pos),
+				k.anchor("center"),
+				k.area(),
+				k.color(...opts.color),
+				k.z(15),
+				"enemyProjectile",
+			]);
 
 	proj.onUpdate(() => {
 		proj.move(unitDir.scale(opts.speed));
@@ -160,7 +174,11 @@ export function spawnEnemyProjectile(opts: EnemyProjectileOpts): GameObj {
 		}
 	});
 
-	bindPlatformCollision(proj);
+	bindPlatformCollision(proj, () => {
+		if (opts.spriteName) {
+			spawnImpactEffect(proj.pos.clone(), opts.spriteName, facingDir);
+		}
+	});
 
 	proj.onCollide("player", (playerObj: GameObj) => {
 		if (!proj.exists()) return;
@@ -172,6 +190,9 @@ export function spawnEnemyProjectile(opts: EnemyProjectileOpts): GameObj {
 			return;
 		}
 		target.takeDamage?.(opts.damage);
+		if (opts.spriteName) {
+			spawnImpactEffect(proj.pos.clone(), opts.spriteName, facingDir);
+		}
 		proj.destroy();
 	});
 
