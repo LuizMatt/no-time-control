@@ -66,7 +66,7 @@ export function writeTokenPng(file, grid) {
 /** True for neutral, bright pixels (the fake transparency checkerboard). */
 function isCheckerLike(r, g, b) {
 	const chroma = Math.max(r, g, b) - Math.min(r, g, b);
-	return chroma < 14 && (r + g + b) / 3 > 115;
+	return chroma < 14 && (r + g + b) / 3 > 100;
 }
 
 /** Marks checkerboard pixels connected to the image edges. Returns Uint8Array (1 = background). */

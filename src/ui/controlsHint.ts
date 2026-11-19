@@ -3,15 +3,15 @@ import { KEYS, SCREEN_WIDTH } from "../core/constants";
 import { k } from "../core/k";
 import { state } from "../core/state";
 
-/** Sprite is 468x152 (CONTROLS_DOWNSCALE = 2 in scripts/build-ui-assets.mjs); 1:1 scale sits cleanly in the upper-center (~49% screen width). */
+/** Sprite is 473x115 (CONTROLS_DOWNSCALE = 2 in scripts/build-ui-assets.mjs); 1:1 scale sits cleanly in the upper-center (~49% screen width). */
 const CONTROLS_SCALE = 1;
-const CONTROLS_WIDTH = 468;
-const CONTROLS_HEIGHT = 152;
+const CONTROLS_WIDTH = 473;
+const CONTROLS_HEIGHT = 115;
 const PANEL_PAD_X = 24;
 const PANEL_PAD_Y = 20;
 const PANEL_OPACITY = 0.84;
-/** Panel spans y = 109..281, clearing eraBanner (y <= 98) and staying above player / weapon HUD (y >= 429). */
-const HINT_CENTER_Y = 195;
+/** Panel spans y = 110..246, clearing eraBanner (y <= 98) and staying above player / weapon HUD (y >= 429). */
+const HINT_CENTER_Y = 178;
 const HINT_DURATION = 6;
 const FADE_DURATION = 0.5;
 
