@@ -29,6 +29,12 @@ export const WEREWOLF_DAMAGE = 35;
 export const WEREWOLF_COOLDOWN = 0.25;
 export const WEREWOLF_RANGE = 64;
 
+// Audio levels (max gain ceiling + default normalized slider 0..1)
+export const SFX_MASTER_VOLUME = 0.85;
+export const MUSIC_MASTER_VOLUME = 0.3;
+export const DEFAULT_SFX_LEVEL = 0.7;
+export const DEFAULT_MUSIC_LEVEL = 0.45;
+
 // Input key bindings
 export const KEYS = {
 	LEFT: "a",
@@ -40,4 +46,5 @@ export const KEYS = {
 	WEAPON_1: "1",
 	WEAPON_2: "2",
 	WEAPON_3: "3",
+	PAUSE: "escape",
 } as const;
