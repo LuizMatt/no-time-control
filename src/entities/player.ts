@@ -31,8 +31,27 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	let afterimageTimer = 0;
 	let attackAnimTimer = 0;
 	let isDead = false;
-	type PlayerAnim = "idle" | "run" | "jump" | "fall" | "attack" | "dash" | "death";
+	type AttackAnim = "attack" | "attack_pistol" | "attack_plasma";
+	type PlayerAnim =
+		| "idle"
+		| "run"
+		| "jump"
+		| "fall"
+		| AttackAnim
+		| "dash"
+		| "death";
 	let currentAnim: PlayerAnim = "idle";
+	let currentAttackAnim: AttackAnim = "attack";
+
+	function resolveAttackAnim(): { anim: AttackAnim; duration: number } {
+		if (state.transformed || state.activeWeapon === "w1") {
+			return { anim: "attack", duration: 0.36 };
+		}
+		if (state.activeWeapon === "w2") {
+			return { anim: "attack_pistol", duration: 0.3 };
+		}
+		return { anim: "attack_plasma", duration: 0.4 };
+	}
 
 	function playAnim(anim: PlayerAnim): void {
 		if (currentAnim === anim) return;
@@ -127,9 +146,11 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	player.on("transform:end", () => applyTransformVisual(false));
 	player.on("player:attack", () => {
 		if (!isDead && !isDashing) {
-			attackAnimTimer = 0.36;
-			currentAnim = "attack";
-			player.play("attack");
+			const { anim, duration } = resolveAttackAnim();
+			attackAnimTimer = duration;
+			currentAttackAnim = anim;
+			currentAnim = anim;
+			player.play(anim);
 		}
 	});
 	applyTransformVisual(state.transformed);
@@ -211,7 +232,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 			}
 
 			if (attackAnimTimer > 0) {
-				playAnim("attack");
+				playAnim(currentAttackAnim);
 			} else if (!player.isGrounded()) {
 				playAnim(player.vel.y < 0 ? "jump" : "fall");
 			} else if (dir !== 0) {
