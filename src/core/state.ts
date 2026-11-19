@@ -11,6 +11,7 @@ export const state = {
 	transformed: false,
 	bossActive: false,
 	bossDefeated: false,
+	paused: false,
 	deaths: 0,
 	eraHistory: [] as Era[],
 };
@@ -25,6 +26,7 @@ export function resetRun(): void {
 	state.transformed = false;
 	state.bossActive = false;
 	state.bossDefeated = false;
+	state.paused = false;
 	state.deaths = 0;
 	state.eraHistory = [];
 }
@@ -35,6 +37,7 @@ export function prepareCheckpointRespawn(nextEra: Era): void {
 	state.hp = state.maxHp;
 	state.transformed = false;
 	state.bossActive = false;
+	state.paused = false;
 	state.deaths += 1;
 	state.eraHistory.push(nextEra);
 }
