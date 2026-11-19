@@ -204,10 +204,14 @@ export function playMusic(trackId: string, volume = 1): void {
 		activeMusicId = trackId;
 		activeMusicBaseVolume = volume;
 		activeMusicFadeMult = 1;
+		// Kaplay's loadMusic playback ignores opts.volume on init, so start paused,
+		// apply volume first, then unpause to avoid a 100% volume blast.
 		activeMusicHandle = k.play(trackId, {
 			loop: true,
-			volume: computeMusicGain(),
+			paused: true,
 		});
+		applyMusicVolume();
+		activeMusicHandle.paused = false;
 	} catch {
 		activeMusicId = null;
 		activeMusicHandle = null;
