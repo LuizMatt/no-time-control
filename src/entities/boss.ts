@@ -42,9 +42,11 @@ const TELEPORT_FADE_DURATION = 0.24;
 const TELEPORT_IN_DURATION = 0.22;
 const DEFEAT_DURATION = 1.5;
 
-const CHARGE_SPEED_MULT = 2.65;
+const CHARGE_SPEED_MULT = 2.25;
 const CHARGE_DURATION = 0.65;
 const CHARGE_JUMP_FORCE = 520;
+const PAST_TELEGRAPH_DURATION = 0.62;
+const PAST_MELEE_TELEGRAPH_DURATION = 0.56;
 
 const BOSS_PROJECTILE_SPEED = 430;
 const BOSS_PROJECTILE_RANGE = 960;
@@ -359,52 +361,52 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 			playBossAnim("walk");
 
 			attackTimer -= dt;
-			// Punish player quickly if they stay right in melee range
-			if (dist <= 115 && attackTimer <= def.attackCooldown * 0.55) {
+			// Punish player if they stay right in melee range near the end of cooldown
+			if (dist <= 105 && attackTimer <= def.attackCooldown * 0.25) {
 				pastMove = "melee";
 				meleeHitDone = false;
 				chargeDir = dir;
 				phase = "telegraph";
-				phaseTimer = TELEGRAPH_DURATION * 0.72;
+				phaseTimer = PAST_MELEE_TELEGRAPH_DURATION * Math.max(0.85, cooldownMult());
 				playBossAnim("telegraph", true);
 				return;
 			}
 
 			if (attackTimer <= 0) {
 				chargeDir = dir;
-				if (dist <= 130) {
+				if (dist <= 125) {
 					pastMove = "melee";
-				} else if (dist > 340 || (isEnraged() && Math.random() < 0.4)) {
+				} else if (dist > 340 || (isEnraged() && Math.random() < 0.35)) {
 					pastMove = "leap";
 				} else {
 					pastMove = "dash";
 				}
 				meleeHitDone = false;
 				phase = "telegraph";
-				phaseTimer = TELEGRAPH_DURATION * cooldownMult();
+				phaseTimer = PAST_TELEGRAPH_DURATION * Math.max(0.85, cooldownMult());
 				playBossAnim("telegraph", true);
 			}
 			return;
 		}
 
 		if (phase === "telegraph") {
-			facePlayer(player);
-			chargeDir = dir;
-			const blink = Math.floor(k.time() * 18) % 2 === 0;
+			// Lock attack direction once telegraph begins so dashing/jumping behind the boss works
+			dir = chargeDir;
+			const blink = Math.floor(k.time() * 14) % 2 === 0;
 			boss.color = blink ? k.rgb(245, 237, 186) : k.rgb(...baseTint);
 			phaseTimer -= dt;
 			if (phaseTimer <= 0) {
 				boss.color = k.rgb(...baseTint);
 				phase = "attack";
 				if (pastMove === "melee") {
-					phaseTimer = 0.38;
+					phaseTimer = 0.44;
 					playBossAnim("melee", true);
 				} else if (pastMove === "leap") {
-					phaseTimer = 0.75;
-					const targetX = player ? player.pos.x : boss.pos.x + chargeDir * 240;
-					leapVelX = Math.max(-460, Math.min(460, (targetX - boss.pos.x) * 1.35));
+					phaseTimer = 0.78;
+					const targetX = player ? player.pos.x : boss.pos.x + chargeDir * 220;
+					leapVelX = Math.max(-360, Math.min(360, (targetX - boss.pos.x) * 1.15));
 					if (boss.isGrounded()) {
-						boss.jump(CHARGE_JUMP_FORCE * 1.15);
+						boss.jump(CHARGE_JUMP_FORCE * 1.1);
 					}
 					playSfx("sfx-dash", { volume: 0.9, detune: -180 });
 					playBossAnim("attack", true);
@@ -420,17 +422,17 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 		if (phase === "attack") {
 			phaseTimer -= dt;
 			if (pastMove === "melee") {
-				boss.move(chargeDir * def.speed * 0.55, 0);
+				boss.move(chargeDir * def.speed * 0.35, 0);
 				clampX();
-				if (!meleeHitDone && phaseTimer <= 0.22) {
+				if (!meleeHitDone && phaseTimer <= 0.24) {
 					meleeHitDone = true;
 					playSfx("sfx-axe", { volume: 0.9, detune: -200 });
-					resolveMeleeHit(player, def.width * 0.95 + 52, def.height + 16);
+					resolveMeleeHit(player, def.width * 0.8 + 36, def.height + 10);
 					k.shake(4);
 				}
 				if (phaseTimer <= 0) {
 					phase = "recover";
-					phaseTimer = 0.35 * cooldownMult();
+					phaseTimer = 0.75 * Math.max(0.82, cooldownMult());
 				}
 				return;
 			}
@@ -440,10 +442,10 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 				clampX();
 				if (phaseTimer <= 0.5 && boss.isGrounded()) {
 					k.shake(7);
-					spawnShockwave(isEnraged() ? 380 : 300);
+					spawnShockwave(isEnraged() ? 310 : 250);
 					playBossAnim("melee", true);
 					phase = "recover";
-					phaseTimer = 0.45 * cooldownMult();
+					phaseTimer = 0.9 * Math.max(0.82, cooldownMult());
 				}
 				return;
 			}
@@ -463,12 +465,12 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 				if (hitWall) {
 					k.shake(6);
 					if (isEnraged()) {
-						spawnShockwave(340);
+						spawnShockwave(280);
 					}
 				}
 				playBossAnim("melee", true);
 				phase = "recover";
-				phaseTimer = 0.42 * cooldownMult();
+				phaseTimer = 0.85 * Math.max(0.82, cooldownMult());
 			}
 			return;
 		}
