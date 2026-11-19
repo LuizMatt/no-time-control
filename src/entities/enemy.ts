@@ -1,4 +1,5 @@
 import type { GameObj, Vec2 } from "kaplay";
+import { playSfx } from "../core/audio";
 import { FALL_DEATH_Y } from "../core/constants";
 import { k } from "../core/k";
 import { shouldResolvePlatformCollision } from "../core/physics";
@@ -163,6 +164,9 @@ export function makeEnemy(def: EnemyDef, spawnPos: Vec2): GameObj {
 	};
 
 	const resolveMeleeStrike = (): void => {
+		if (def.era === "past") {
+			playSfx("sfx-past-mob-hit", { volume: 0.65, detune: -150 });
+		}
 		const player = getPlayer();
 		if (!player) return;
 		const deltaX = player.pos.x - enemy.pos.x;
@@ -196,6 +200,11 @@ export function makeEnemy(def: EnemyDef, spawnPos: Vec2): GameObj {
 	};
 
 	const fireProjectile = (): void => {
+		if (def.era === "present") {
+			playSfx("sfx-shot", { volume: 0.55, detune: -100 });
+		} else if (def.era === "future") {
+			playSfx("sfx-turret-plasma", { volume: 0.7 });
+		}
 		const muzzleOffsetY =
 			def.sprite === "enemy-future-turret"
 				? 40

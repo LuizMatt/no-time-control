@@ -306,4 +306,28 @@ export function loadAssets(): void {
 	}
 
 	k.loadSprite("intro-cutscene", "sprites/intro-cutscene.png");
+
+	const sfxList: ReadonlyArray<readonly [string, string]> = [
+		["sfx-shot", "sounds/01_tiro.wav"],
+		["sfx-axe", "sounds/02_machado.wav"],
+		["sfx-plasma", "sounds/03_tiro_de_plasma.wav"],
+		["sfx-boss-future-plasma", "sounds/04_tiro_de_plasma_boss_futuro.wav"],
+		["sfx-teleport", "sounds/05_teleport.wav"],
+		["sfx-hit", "sounds/06_hit.wav"],
+		["sfx-dash", "sounds/07_avanco.wav"],
+		["sfx-burst", "sounds/08_rajada_de_tiros.wav"],
+		["sfx-turret-plasma", "sounds/09_tiro_de_plasma_torreta.wav"],
+		["sfx-past-mob-hit", "sounds/10_hit_mobs_passado.wav"],
+		["sfx-checkpoint", "sounds/11_checkpoint.wav"],
+		["sfx-transform", "sounds/12_transformar_lobo.wav"],
+		["sfx-werewolf-attack", "sounds/13_hit_lobo.wav"],
+		["sfx-type", "sounds/14_type.wav"],
+		["sfx-type-loop", "sounds/14_type_loop_2_6s.wav"],
+	];
+
+	for (const [name, path] of sfxList) {
+		k.loadSound(name, path);
+	}
+
+	k.loadMusic("bgm-main", "sounds/soundtrack.mp4");
 }

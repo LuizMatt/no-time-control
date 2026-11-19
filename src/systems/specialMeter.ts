@@ -1,3 +1,4 @@
+import { playSfx } from "../core/audio";
 import {
 	KEYS,
 	SPECIAL_GAIN_HIT,
@@ -23,14 +24,16 @@ export function initSpecialMeter(): void {
 	});
 
 	k.onKeyPress(KEYS.TRANSFORM, () => {
+		if (state.paused) return;
 		if (!state.transformed && state.special >= SPECIAL_MAX) {
 			state.transformed = true;
+			playSfx("sfx-transform", { volume: 0.95 });
 			k.trigger("transform:start", "player");
 		}
 	});
 
 	k.onUpdate(() => {
-		if (!state.transformed) return;
+		if (state.paused || !state.transformed) return;
 
 		state.special -= (SPECIAL_MAX / TRANSFORM_DURATION) * k.dt();
 		if (state.special <= 0) {

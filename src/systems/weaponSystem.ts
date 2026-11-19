@@ -1,4 +1,5 @@
 import type { GameObj } from "kaplay";
+import { playSfx } from "../core/audio";
 import {
 	KEYS,
 	WEREWOLF_COOLDOWN,
@@ -81,6 +82,13 @@ export function applyHitToTarget(
 	if (effective) {
 		k.shake(3);
 	}
+
+	const isPastMob =
+		target.era === "past" && "enemyId" in target;
+	playSfx(isPastMob ? "sfx-past-mob-hit" : "sfx-hit", {
+		volume: effective ? 0.9 : 0.45,
+		detune: effective ? 0 : -240,
+	});
 
 	const feedbackY = target.pos.y - (target.height ?? 40) - 16;
 	spawnDamageFeedback(target.pos.x, feedbackY, damage, effective);
@@ -177,7 +185,7 @@ export function setupWeaponControls(player: WeaponHost): void {
 	let cooldownTimer = 0;
 
 	const selectWeapon = (weaponId: WeaponId): void => {
-		if (!player.exists() || player.isBusy()) return;
+		if (state.paused || !player.exists() || player.isBusy()) return;
 		if (state.activeWeapon !== weaponId) {
 			state.activeWeapon = weaponId;
 			k.trigger("weapon:changed", "player", weaponId);
@@ -189,13 +197,14 @@ export function setupWeaponControls(player: WeaponHost): void {
 	k.onKeyPress(KEYS.WEAPON_3, () => selectWeapon("w3"));
 
 	k.onUpdate(() => {
+		if (state.paused) return;
 		if (cooldownTimer > 0) {
 			cooldownTimer = Math.max(0, cooldownTimer - k.dt());
 		}
 	});
 
 	k.onKeyPress(KEYS.ATTACK, () => {
-		if (!player.exists() || player.isBusy() || cooldownTimer > 0) {
+		if (state.paused || !player.exists() || player.isBusy() || cooldownTimer > 0) {
 			return;
 		}
 
@@ -203,6 +212,7 @@ export function setupWeaponControls(player: WeaponHost): void {
 
 		if (state.transformed) {
 			cooldownTimer = WEREWOLF_COOLDOWN;
+			playSfx("sfx-werewolf-attack", { volume: 0.95 });
 			performMeleeSlash(
 				player,
 				WEREWOLF_RANGE,
@@ -216,6 +226,7 @@ export function setupWeaponControls(player: WeaponHost): void {
 		cooldownTimer = weapon.cooldown;
 
 		if (weapon.kind === "melee") {
+			playSfx("sfx-axe", { volume: 0.9 });
 			performMeleeSlash(
 				player,
 				weapon.range,
@@ -223,6 +234,11 @@ export function setupWeaponControls(player: WeaponHost): void {
 				weapon.era,
 			);
 		} else {
+			if (weapon.id === "w2") {
+				playSfx("sfx-shot", { volume: 0.85 });
+			} else if (weapon.id === "w3") {
+				playSfx("sfx-plasma", { volume: 0.9 });
+			}
 			const facing = player.getFacing();
 			const spriteName =
 				weapon.id === "w2"

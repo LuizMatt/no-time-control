@@ -1,4 +1,5 @@
 import type { GameObj, Vec2 } from "kaplay";
+import { playSfx } from "../core/audio";
 import { k } from "../core/k";
 import { shouldResolvePlatformCollision } from "../core/physics";
 import { state } from "../core/state";
@@ -265,6 +266,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 	};
 
 	const fireFanShot = (player: GameObj | null): void => {
+		playSfx("sfx-burst", { volume: 0.85, detune: -80 });
 		const origin = k.vec2(boss.pos.x + dir * (def.width / 2 + 12), boss.pos.y - def.height * 0.56);
 		const targetPos = player
 			? k.vec2(player.pos.x, player.pos.y - 24)
@@ -404,9 +406,11 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 					if (boss.isGrounded()) {
 						boss.jump(CHARGE_JUMP_FORCE * 1.15);
 					}
+					playSfx("sfx-dash", { volume: 0.9, detune: -180 });
 					playBossAnim("attack", true);
 				} else {
 					phaseTimer = CHARGE_DURATION;
+					playSfx("sfx-dash", { volume: 0.9, detune: -100 });
 					playBossAnim("attack", true);
 				}
 			}
@@ -420,6 +424,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 				clampX();
 				if (!meleeHitDone && phaseTimer <= 0.22) {
 					meleeHitDone = true;
+					playSfx("sfx-axe", { volume: 0.9, detune: -200 });
 					resolveMeleeHit(player, def.width * 0.95 + 52, def.height + 16);
 					k.shake(4);
 				}
@@ -541,6 +546,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 				phase = "attack";
 				playBossAnim("attack", true);
 				if (presentMove === "burst") {
+					playSfx("sfx-burst", { volume: 0.9 });
 					burstShotsLeft = isEnraged() ? 4 : 3;
 					burstShotTimer = 0;
 				} else {
@@ -612,6 +618,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 				teleportTarget = pickTeleportSpot(player, doAmbush);
 				phase = "teleportOut";
 				phaseTimer = TELEPORT_FADE_DURATION;
+				playSfx("sfx-teleport", { volume: 0.85 });
 				playBossAnim("teleportOut", true);
 			}
 			return;
@@ -679,6 +686,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 					playBossAnim("melee", true);
 				} else {
 					playBossAnim("attack", true);
+					playSfx("sfx-boss-future-plasma", { volume: 0.95 });
 					const origin = k.vec2(boss.pos.x, boss.pos.y - def.height * 0.56);
 					const offsets = isEnraged() ? [0, 18, 36] : [0, 18];
 					for (const offset of offsets) {
@@ -699,6 +707,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 						teleportTarget = pickTeleportSpot(player, false);
 						phase = "teleportOut";
 						phaseTimer = TELEPORT_FADE_DURATION;
+						playSfx("sfx-teleport", { volume: 0.85 });
 						playBossAnim("teleportOut", true);
 					} else {
 						phase = "recover";
@@ -715,6 +724,7 @@ export function makeBoss(def: BossDef, spawnPos: Vec2, arenaBounds: ArenaBounds)
 			clampX();
 			if (!meleeHitDone && phaseTimer <= 0.22) {
 				meleeHitDone = true;
+				playSfx("sfx-axe", { volume: 0.85, detune: 180 });
 				resolveMeleeHit(player, def.width + 68, def.height + 20);
 				k.shake(5);
 			}

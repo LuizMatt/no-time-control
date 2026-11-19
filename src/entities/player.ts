@@ -1,4 +1,5 @@
 import type { Vec2 } from "kaplay";
+import { playSfx } from "../core/audio";
 import {
 	DASH_COOLDOWN,
 	DASH_DURATION,
@@ -103,6 +104,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 				if (isDead || invulnTimer > 0 || isDashing || state.bossDefeated) return;
 				state.hp = Math.max(0, state.hp - amount);
 				invulnTimer = PLAYER_INVULN_TIME;
+				playSfx("sfx-hit", { volume: 0.95, detune: -180 });
 				k.trigger("player:hurt", "player");
 				if (state.hp <= 0) {
 					triggerPlayerDeath(false);
@@ -187,19 +189,20 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	});
 
 	k.onKeyPress(KEYS.JUMP, () => {
-		if (!isDead && !isDashing && player.isGrounded()) {
+		if (!state.paused && !isDead && !isDashing && player.isGrounded()) {
 			const jumpForce = JUMP_FORCE * (state.transformed ? WEREWOLF_JUMP_MULT : 1);
 			player.jump(jumpForce);
 		}
 	});
 
 	k.onKeyPress(KEYS.DASH, () => {
-		if (!isDead && !isDashing && dashCooldownTimer <= 0) {
+		if (!state.paused && !isDead && !isDashing && dashCooldownTimer <= 0) {
 			isDashing = true;
 			dashTimer = DASH_DURATION;
 			dashCooldownTimer = DASH_COOLDOWN;
 			invulnTimer = Math.max(invulnTimer, DASH_DURATION + 0.06);
 			afterimageTimer = 0;
+			playSfx("sfx-dash", { volume: 0.8 });
 			playAnim("dash");
 		}
 	});
