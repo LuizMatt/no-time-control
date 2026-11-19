@@ -63,7 +63,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	}
 
 	function triggerPlayerDeath(instant = false): void {
-		if (isDead) return;
+		if (isDead || state.bossDefeated) return;
 		isDead = true;
 		isDashing = false;
 		player.vel.x = 0;
@@ -71,6 +71,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		aura.opacity = 0;
 
 		if (instant) {
+			if (state.bossDefeated) return;
 			const nextEra = pickDifferentEra(state.currentEra);
 			prepareCheckpointRespawn(nextEra);
 			k.go("stage");
@@ -79,6 +80,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 
 		playAnim("death");
 		k.wait(0.85, () => {
+			if (state.bossDefeated) return;
 			const nextEra = pickDifferentEra(state.currentEra);
 			prepareCheckpointRespawn(nextEra);
 			k.go("stage");
@@ -98,7 +100,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		"player",
 		{
 			takeDamage(amount: number): void {
-				if (isDead || invulnTimer > 0 || isDashing) return;
+				if (isDead || invulnTimer > 0 || isDashing || state.bossDefeated) return;
 				state.hp = Math.max(0, state.hp - amount);
 				invulnTimer = PLAYER_INVULN_TIME;
 				k.trigger("player:hurt", "player");
@@ -113,7 +115,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 				return isDead || isDashing;
 			},
 			isInvulnerable(): boolean {
-				return isDead || invulnTimer > 0 || isDashing;
+				return isDead || invulnTimer > 0 || isDashing || state.bossDefeated;
 			},
 		},
 	]);

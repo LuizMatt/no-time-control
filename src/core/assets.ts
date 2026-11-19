@@ -153,6 +153,46 @@ export function loadAssets(): void {
 		},
 	});
 
+	k.loadSprite("boss-past", "sprites/boss-past.png", {
+		sliceX: 11,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 2, speed: 5, loop: true },
+			walk: { from: 0, to: 2, speed: 8, loop: true },
+			telegraph: { from: 2, to: 3, speed: 10, loop: false },
+			attack: { from: 4, to: 6, speed: 12, loop: true },
+			melee: { from: 0, to: 3, speed: 12, loop: false },
+			death: { from: 7, to: 10, speed: 6, loop: false },
+		},
+	});
+
+	k.loadSprite("boss-present", "sprites/boss-present.png", {
+		sliceX: 13,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 0, to: 3, speed: 8, loop: true },
+			telegraph: { from: 4, to: 4, speed: 8, loop: false },
+			attack: { from: 4, to: 6, speed: 12, loop: false },
+			death: { from: 7, to: 12, speed: 7, loop: false },
+		},
+	});
+
+	k.loadSprite("boss-future", "sprites/boss-future.png", {
+		sliceX: 20,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 3, speed: 6, loop: true },
+			walk: { from: 0, to: 3, speed: 8, loop: true },
+			melee: { from: 4, to: 5, speed: 10, loop: false },
+			telegraph: { from: 6, to: 6, speed: 8, loop: false },
+			attack: { from: 6, to: 7, speed: 10, loop: false },
+			teleportOut: { from: 8, to: 10, speed: 14, loop: false },
+			teleportIn: { from: 11, to: 13, speed: 14, loop: false },
+			death: { from: 14, to: 19, speed: 7, loop: false },
+		},
+	});
+
 	k.loadSprite("past-tileset", "sprites/past-tileset.png", {
 		sliceX: 8,
 		sliceY: 4,
