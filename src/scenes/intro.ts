@@ -1,4 +1,5 @@
 import type { GameObj, KEventController } from "kaplay";
+import { stopMusic } from "../core/audio";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../core/constants";
 import { k } from "../core/k";
 import { resetRun } from "../core/state";
@@ -18,6 +19,7 @@ const COL_V: [number, number, number] = [112, 55, 127]; // #70377f
 /** Registers the opening scene with a Play button followed by the Jubileu & Mago do Tempo cutscene. */
 export function registerIntroScene(): void {
 	k.scene("intro", () => {
+		stopMusic();
 		// Full-screen dark background
 		k.add([
 			k.rect(SCREEN_WIDTH, SCREEN_HEIGHT),

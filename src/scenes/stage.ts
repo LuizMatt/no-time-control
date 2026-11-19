@@ -1,3 +1,4 @@
+import { fadeOutMusic, playMusic } from "../core/audio";
 import { GRAVITY, SCREEN_HEIGHT, SCREEN_WIDTH } from "../core/constants";
 import { k } from "../core/k";
 import { prepareCheckpointRespawn, resetRun, state } from "../core/state";
@@ -14,6 +15,7 @@ import { spawnStageEnemies } from "../systems/spawner";
 import { initSpecialMeter } from "../systems/specialMeter";
 import { buildStageEnvironment } from "../systems/stageBuilder";
 import { createHud } from "../ui/hud";
+import { initPauseMenu } from "../ui/pauseMenu";
 
 const BOSS_GATE_TX = 117;
 const CAM_LOOKAHEAD_Y = 48;
@@ -26,6 +28,7 @@ function clamp(val: number, min: number, max: number): number {
 export function registerStageScene(): void {
 	k.scene("stage", () => {
 		k.setGravity(GRAVITY);
+		playMusic("bgm-main");
 		applyEra(state.currentEra);
 
 		const config = ERAS[state.currentEra];
@@ -94,6 +97,7 @@ export function registerStageScene(): void {
 		spawnStageEnemies(STAGE_1, state.currentEra);
 		initSpecialMeter();
 		createHud();
+		initPauseMenu();
 
 		const minCamX = SCREEN_WIDTH / 2;
 		const maxCamX = Math.max(minCamX, mapWidth - SCREEN_WIDTH / 2);
@@ -234,6 +238,7 @@ export function registerStageScene(): void {
 
 		k.on("boss:defeated", "boss", () => {
 			k.shake(12);
+			fadeOutMusic(1.5);
 		});
 
 		k.on("boss:victory", "boss", () => {
@@ -245,6 +250,7 @@ export function registerStageScene(): void {
 		});
 
 		k.onUpdate(() => {
+			if (state.paused) return;
 			const cam = k.camPos();
 			const targetX = clamp(player.pos.x, minCamX, maxCamX);
 			const targetY = clamp(player.pos.y - CAM_LOOKAHEAD_Y, minCamY, maxCamY);
@@ -263,6 +269,7 @@ export function registerStageScene(): void {
 		});
 
 		k.onKeyPress("r", () => {
+			if (state.paused) return;
 			const nextEra = pickDifferentEra(state.currentEra);
 			prepareCheckpointRespawn(nextEra);
 			k.go("stage");
