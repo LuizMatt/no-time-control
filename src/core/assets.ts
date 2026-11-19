@@ -126,4 +126,38 @@ export function loadAssets(): void {
 	for (const [name, path] of futureProps) {
 		k.loadSprite(name, path);
 	}
+
+	const pastParallax: ReadonlyArray<readonly [string, string]> = [
+		["past-bg-sky", "sprites/parallax/past/sky-moon.png"],
+		["past-bg-clouds", "sprites/parallax/past/clouds.png"],
+		["past-bg-far-mountains", "sprites/parallax/past/far-mountains.png"],
+		["past-bg-mid-mountains", "sprites/parallax/past/mid-mountains.png"],
+		["past-bg-forest", "sprites/parallax/past/pine-forest.png"],
+		["past-bg-near-pines", "sprites/parallax/past/near-pines.png"],
+	];
+
+	for (const [name, path] of pastParallax) {
+		k.loadSprite(name, path);
+	}
+
+	const presentParallax: ReadonlyArray<readonly [string, string]> = [
+		["present-bg-sky", "sprites/parallax/present/sky-clouds.png"],
+		["present-bg-far", "sprites/parallax/present/far-skyline.png"],
+		["present-bg-near", "sprites/parallax/present/near-city.png"],
+	];
+
+	for (const [name, path] of presentParallax) {
+		k.loadSprite(name, path);
+	}
+
+	const futureParallax: ReadonlyArray<readonly [string, string]> = [
+		["future-bg-sky", "sprites/parallax/future/sky-smog.png"],
+		["future-bg-far-towers", "sprites/parallax/future/far-towers.png"],
+		["future-bg-mid-scaffolding", "sprites/parallax/future/mid-scaffolding.png"],
+		["future-bg-near-industrial", "sprites/parallax/future/near-industrial.png"],
+	];
+
+	for (const [name, path] of futureParallax) {
+		k.loadSprite(name, path);
+	}
 }

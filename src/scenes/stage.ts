@@ -9,6 +9,7 @@ import { makeBoss } from "../entities/boss";
 import { makeCheckpoint } from "../entities/checkpoint";
 import { makePlayer } from "../entities/player";
 import { applyEra, pickDifferentEra, pickEra } from "../systems/eraDirector";
+import { createEraParallax } from "../systems/parallax";
 import { spawnStageEnemies } from "../systems/spawner";
 import { initSpecialMeter } from "../systems/specialMeter";
 import { buildStageEnvironment } from "../systems/stageBuilder";
@@ -33,6 +34,7 @@ export function registerStageScene(): void {
 			STAGE_1,
 			state.currentEra,
 		);
+		createEraParallax(state.currentEra, mapHeight);
 		const tileset = ERA_TILESETS[state.currentEra];
 
 		for (const cp of STAGE_1.checkpoints) {
