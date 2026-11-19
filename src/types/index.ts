@@ -97,7 +97,34 @@ export type StagePropKind =
 	| "trashBag"
 	| "puddle"
 	| "floorWires"
-	| "ceilingWires";
+	| "ceilingWires"
+	| "window"
+	| "light"
+	| "door"
+	| "portal"
+	| "railingLeft"
+	| "railingMid"
+	| "railingRight"
+	| "banner"
+	| "bannerAlt"
+	| "brazier"
+	| "crateStack"
+	| "cage"
+	| "arch"
+	| "stall"
+	| "bookshelf"
+	| "tower"
+	| "arenaGate";
+
+export interface PropSpriteSpec {
+	sprite: string;
+	anchor: "bot" | "top" | "center";
+	offsetX?: number;
+	offsetY?: number;
+	z?: number;
+}
+
+export type EraPropEntry = number | PropSpriteSpec;
 
 export interface StagePropDef {
 	tx: number;
@@ -128,7 +155,11 @@ export interface EraTilesetConfig {
 	oneWayLeft: readonly number[];
 	oneWayMid: readonly number[];
 	oneWayRight: readonly number[];
-	props: Partial<Record<StagePropKind, number>>;
+	innerCornerLeft?: number;
+	innerCornerRight?: number;
+	pitEdgeLeft?: number;
+	pitEdgeRight?: number;
+	props: Partial<Record<StagePropKind, EraPropEntry>>;
 }
 
 export interface DialogueLine {

@@ -70,18 +70,63 @@ export function registerStageScene(): void {
 			state.checkpointId = Math.max(state.checkpointId, 3);
 
 			// Lock the arena entrance behind the player
-			for (let row = arenaFloorRow - 1; row >= arenaTopRow; row--) {
-				if (STAGE_1.map[row][BOSS_GATE_TX] === "#") break;
-				const frame = tileset.pillarMid[row % tileset.pillarMid.length];
-				k.add([
-					k.sprite(tileset.sprite, { frame }),
-					k.pos(BOSS_GATE_TX * tileWidth, row * tileHeight),
-					k.area({ collisionIgnore: ["platform", "hazard"] }),
-					k.body({ isStatic: true }),
-					k.z(6),
-					"platform",
-					"arenaGate",
-				]);
+			const gateEntry = tileset.props.arenaGate;
+			if (gateEntry !== undefined && typeof gateEntry !== "number") {
+				let gateTopRow = arenaFloorRow;
+				for (let row = arenaFloorRow - 1; row >= arenaTopRow; row--) {
+					if (STAGE_1.map[row][BOSS_GATE_TX] === "#") break;
+					gateTopRow = row;
+				}
+				const gateHeight = (arenaFloorRow - gateTopRow) * tileHeight;
+				if (gateHeight > 0) {
+					k.add([
+						k.pos(BOSS_GATE_TX * tileWidth, gateTopRow * tileHeight),
+						k.area({
+							shape: new k.Rect(k.vec2(0, 0), tileWidth, gateHeight),
+							collisionIgnore: ["platform", "hazard"],
+						}),
+						k.body({ isStatic: true }),
+						"platform",
+						"arenaGate",
+					]);
+					// Render stone wall above the 3-tile tall iron portcullis gate
+					const gateRows = 3;
+					for (let row = gateTopRow; row < arenaFloorRow - gateRows; row++) {
+						const frame = tileset.center[row % tileset.center.length];
+						k.add([
+							k.sprite(tileset.sprite, { frame }),
+							k.pos(BOSS_GATE_TX * tileWidth, row * tileHeight),
+							k.z(6),
+							"arenaGate",
+						]);
+					}
+					k.add([
+						k.sprite(gateEntry.sprite),
+						k.pos(BOSS_GATE_TX * tileWidth + tileWidth / 2, arenaFloorRow * tileHeight),
+						k.anchor("bot"),
+						k.z(6),
+						"arenaGate",
+					]);
+				}
+			} else {
+				for (let row = arenaFloorRow - 1; row >= arenaTopRow; row--) {
+					if (STAGE_1.map[row][BOSS_GATE_TX] === "#") break;
+					const doorEntry = tileset.props.door;
+					const gateDoorFrame = typeof doorEntry === "number" ? doorEntry : 28;
+					const frame =
+						row === arenaFloorRow - 1
+							? gateDoorFrame
+							: tileset.center[row % tileset.center.length];
+					k.add([
+						k.sprite(tileset.sprite, { frame }),
+						k.pos(BOSS_GATE_TX * tileWidth, row * tileHeight),
+						k.area({ collisionIgnore: ["platform", "hazard"] }),
+						k.body({ isStatic: true }),
+						k.z(6),
+						"platform",
+						"arenaGate",
+					]);
+				}
 			}
 
 			const arenaBounds = {

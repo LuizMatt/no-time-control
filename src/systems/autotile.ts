@@ -21,7 +21,36 @@ function isOneWayAt(map: readonly string[], tx: number, ty: number): boolean {
 	return row[tx] === "-";
 }
 
-/** Selects the 3x3 autotile frame (including 1-tile beams and pillars) for a solid `#` cell. */
+function isBgAt(map: readonly string[], tx: number, ty: number): boolean {
+	if (ty < 0 || ty >= map.length) return false;
+	const row = map[ty];
+	if (tx < 0 || tx >= row.length) return false;
+	return row[tx] === "B";
+}
+
+function isPitColumn(map: readonly string[], tx: number, fromTy: number): boolean {
+	if (tx < 0 || fromTy < 0 || fromTy >= map.length) return false;
+	if (tx >= map[fromTy].length) return false;
+	for (let y = fromTy; y < map.length; y++) {
+		if (map[y][tx] === "#") return false;
+	}
+	return true;
+}
+
+function isSolidToBottom(map: readonly string[], tx: number, fromTy: number): boolean {
+	if (tx < 0 || fromTy < 0 || fromTy >= map.length) return false;
+	if (tx >= map[fromTy].length) return false;
+	for (let y = fromTy; y < map.length; y++) {
+		if (map[y][tx] !== "#") return false;
+	}
+	return true;
+}
+
+function isPitEdge(map: readonly string[], solidTx: number, openTx: number, ty: number): boolean {
+	return isSolidToBottom(map, solidTx, ty) && isPitColumn(map, openTx, ty);
+}
+
+/** Selects the 3x3 autotile frame (including 1-tile beams, pillars, and pit edges) for a solid `#` cell. */
 export function pickAutotileFrame(
 	tileset: EraTilesetConfig,
 	map: readonly string[],
@@ -37,24 +66,40 @@ export function pickAutotileFrame(
 		return pickVariant(tileset.thinSingle, tx, ty);
 	}
 
-	// 1-tile horizontal beam
+	// 1-tile horizontal beam / roof slab
 	if (!up && !down) {
 		if (!left) return pickVariant(tileset.thinLeft, tx, ty);
 		if (!right) return pickVariant(tileset.thinRight, tx, ty);
 		return pickVariant(tileset.thinMid, tx, ty);
 	}
 
-	// 1-tile vertical pillar
+	// 1-tile vertical column: use solid wall when enclosing a `B` room, pillar when freestanding
 	if (!left && !right) {
+		const enclosesRoom = isBgAt(map, tx - 1, ty) || isBgAt(map, tx + 1, ty);
+		if (enclosesRoom) {
+			if (!up) return pickVariant(tileset.top, tx, ty);
+			if (!down) return pickVariant(tileset.bottom, tx, ty);
+			return pickVariant(tileset.center, tx, ty);
+		}
 		if (!up) return pickVariant(tileset.pillarTop, tx, ty);
 		if (!down) return pickVariant(tileset.pillarBottom, tx, ty);
 		return pickVariant(tileset.pillarMid, tx, ty);
 	}
 
-	// 3x3 block surfaces and corners
+	// 3x3 block surfaces and corners (with optional pit-cliff overrides on ground edges)
 	if (!up) {
-		if (!left) return pickVariant(tileset.topLeft, tx, ty);
-		if (!right) return pickVariant(tileset.topRight, tx, ty);
+		if (!left) {
+			if (tileset.pitEdgeRight !== undefined && isPitEdge(map, tx, tx - 1, ty)) {
+				return tileset.pitEdgeRight;
+			}
+			return pickVariant(tileset.topLeft, tx, ty);
+		}
+		if (!right) {
+			if (tileset.pitEdgeLeft !== undefined && isPitEdge(map, tx, tx + 1, ty)) {
+				return tileset.pitEdgeLeft;
+			}
+			return pickVariant(tileset.topRight, tx, ty);
+		}
 		return pickVariant(tileset.top, tx, ty);
 	}
 

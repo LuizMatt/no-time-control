@@ -30,16 +30,37 @@ export function loadAssets(): void {
 
 	k.loadSprite("past-tileset", "sprites/past-tileset.png", {
 		sliceX: 8,
-		sliceY: 3,
+		sliceY: 4,
 	});
 
 	k.loadSprite("present-tileset", "sprites/present-tileset.png", {
 		sliceX: 8,
-		sliceY: 3,
+		sliceY: 4,
 	});
 
 	k.loadSprite("future-tileset", "sprites/future-tileset.png", {
 		sliceX: 8,
-		sliceY: 3,
+		sliceY: 4,
 	});
+
+	const pastProps: ReadonlyArray<readonly [string, string]> = [
+		["past-prop-window", "sprites/props/past/window.png"],
+		["past-prop-door", "sprites/props/past/door.png"],
+		["past-prop-portal", "sprites/props/past/portal.png"],
+		["past-prop-torch", "sprites/props/past/torch.png"],
+		["past-prop-banner", "sprites/props/past/banner.png"],
+		["past-prop-banner-alt", "sprites/props/past/banner-alt.png"],
+		["past-prop-brazier", "sprites/props/past/brazier.png"],
+		["past-prop-crates", "sprites/props/past/crates.png"],
+		["past-prop-bookshelf", "sprites/props/past/bookshelf.png"],
+		["past-prop-stall", "sprites/props/past/stall.png"],
+		["past-prop-cage", "sprites/props/past/cage.png"],
+		["past-prop-arch", "sprites/props/past/arch.png"],
+		["past-prop-tower", "sprites/props/past/tower.png"],
+		["past-prop-gate", "sprites/props/past/gate.png"],
+	];
+
+	for (const [name, path] of pastProps) {
+		k.loadSprite(name, path);
+	}
 }
