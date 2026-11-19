@@ -1,3 +1,4 @@
+import { playSfx } from "../core/audio";
 import { k } from "../core/k";
 import { state } from "../core/state";
 import { ERAS } from "../data/eras";
@@ -26,6 +27,7 @@ export function makeCheckpoint(def: CheckpointDef, tileWidth: number, tileHeight
 
 		state.checkpointId = def.id;
 		state.hp = state.maxHp;
+		playSfx("sfx-checkpoint", { volume: 0.9 });
 
 		const accent = ERAS[state.currentEra].accentColor;
 		checkpoint.color = k.rgb(...accent);

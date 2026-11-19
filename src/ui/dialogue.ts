@@ -1,4 +1,5 @@
-import type { GameObj, KEventController } from "kaplay";
+import type { AudioPlay, GameObj, KEventController } from "kaplay";
+import { playLoopingSfx } from "../core/audio";
 import { SCREEN_WIDTH } from "../core/constants";
 import { k } from "../core/k";
 import type { DialogueLine } from "../types";
@@ -261,19 +262,35 @@ export function startDialogue(
 	let isLineComplete = false;
 	let finished = false;
 	let inputGuardTimer = 0.12;
+	let typeLoopHandle: AudioPlay | null = null;
+
+	const stopTypeSound = (): void => {
+		if (!typeLoopHandle) return;
+		try {
+			typeLoopHandle.stop();
+		} catch {
+			// Ignore if already stopped
+		}
+		typeLoopHandle = null;
+	};
 
 	const showLine = (index: number): void => {
+		stopTypeSound();
 		const line = lines[index];
 		renderSpeakerBadge(line.speaker);
 		charCount = 0;
 		isLineComplete = false;
 		bodyText.text = "";
 		stepCounterText.text = `${index + 1} / ${lines.length}`;
+		if (line.text.length > 0) {
+			typeLoopHandle = playLoopingSfx("sfx-type-loop", { volume: 0.55 });
+		}
 	};
 
 	const cleanupAndFinish = (): void => {
 		if (finished) return;
 		finished = true;
+		stopTypeSound();
 		for (const ctrl of listeners) {
 			ctrl.cancel();
 		}
@@ -291,6 +308,7 @@ export function startDialogue(
 			charCount = currentLine.text.length;
 			bodyText.text = currentLine.text;
 			isLineComplete = true;
+			stopTypeSound();
 			return;
 		}
 
@@ -322,6 +340,7 @@ export function startDialogue(
 				bodyText.text = currentLine.text.slice(0, shown);
 				if (shown >= currentLine.text.length) {
 					isLineComplete = true;
+					stopTypeSound();
 				}
 			}
 
