@@ -30,6 +30,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	let invulnTimer = 0;
 	let afterimageTimer = 0;
 	let attackAnimTimer = 0;
+	let howlAnimTimer = 0;
 	let isDead = false;
 	type AttackAnim = "attack" | "attack_pistol" | "attack_plasma";
 	type PlayerAnim =
@@ -39,9 +40,11 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		| "fall"
 		| AttackAnim
 		| "dash"
+		| "howl"
 		| "death";
 	let currentAnim: PlayerAnim = "idle";
 	let currentAttackAnim: AttackAnim = "attack";
+	let activeSprite: "player" | "werewolf" = "player";
 
 	function resolveAttackAnim(): { anim: AttackAnim; duration: number } {
 		if (state.transformed || state.activeWeapon === "w1") {
@@ -130,30 +133,50 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		k.z(-1),
 	]);
 
-	function applyTransformVisual(transformed: boolean): void {
+	function applyTransformVisual(transformed: boolean, playHowl = false): void {
 		if (!player.exists()) return;
+		const targetSprite: "player" | "werewolf" = transformed
+			? "werewolf"
+			: "player";
+		const startAnim: PlayerAnim =
+			transformed && playHowl ? "howl" : "idle";
+
+		if (activeSprite !== targetSprite) {
+			activeSprite = targetSprite;
+			player.use(k.sprite(targetSprite, { anim: startAnim }));
+			player.flipX = facing === -1;
+			currentAnim = startAnim;
+		}
+
+		player.color = k.rgb(255, 255, 255);
+		aura.opacity = 0;
+
 		if (transformed) {
-			player.color = k.rgb(255, 130, 155);
 			player.scale = k.vec2(WEREWOLF_SCALE_X, WEREWOLF_SCALE_Y);
+			if (playHowl) {
+				howlAnimTimer = 0.38;
+				currentAnim = "howl";
+				player.play("howl");
+			}
 		} else {
-			player.color = k.rgb(255, 255, 255);
+			howlAnimTimer = 0;
 			player.scale = k.vec2(BASE_SCALE, BASE_SCALE);
-			aura.opacity = 0;
 		}
 	}
 
-	player.on("transform:start", () => applyTransformVisual(true));
-	player.on("transform:end", () => applyTransformVisual(false));
+	player.on("transform:start", () => applyTransformVisual(true, true));
+	player.on("transform:end", () => applyTransformVisual(false, false));
 	player.on("player:attack", () => {
 		if (!isDead && !isDashing) {
 			const { anim, duration } = resolveAttackAnim();
+			howlAnimTimer = 0;
 			attackAnimTimer = duration;
 			currentAttackAnim = anim;
 			currentAnim = anim;
 			player.play(anim);
 		}
 	});
-	applyTransformVisual(state.transformed);
+	applyTransformVisual(state.transformed, false);
 
 	player.onCollideUpdate((obj) => {
 		if (obj.is("hazard")) {
@@ -186,8 +209,10 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		dashCooldownTimer = Math.max(0, dashCooldownTimer - dt);
 		invulnTimer = Math.max(0, invulnTimer - dt);
 		attackAnimTimer = Math.max(0, attackAnimTimer - dt);
+		howlAnimTimer = Math.max(0, howlAnimTimer - dt);
 
 		if (isDashing) {
+			howlAnimTimer = 0;
 			dashTimer -= dt;
 			player.vel.y = 0;
 			player.move(facing * DASH_SPEED, 0);
@@ -196,10 +221,10 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 			if (afterimageTimer <= 0) {
 				afterimageTimer = 0.04;
 				const ghostColor: [number, number, number] = state.transformed
-					? [255, 95, 130]
+					? [126, 196, 193]
 					: [180, 220, 255];
 				const ghost = k.add([
-					k.sprite("player", { frame: player.frame }),
+					k.sprite(activeSprite, { frame: player.frame }),
 					k.pos(player.pos),
 					k.anchor("bot"),
 					k.scale(player.scale),
@@ -225,6 +250,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 			if (k.isKeyDown(KEYS.RIGHT)) dir += 1;
 
 			if (dir !== 0) {
+				howlAnimTimer = 0;
 				facing = dir > 0 ? 1 : -1;
 				player.flipX = facing === -1;
 				const speed = PLAYER_SPEED * (state.transformed ? WEREWOLF_SPEED_MULT : 1);
@@ -234,16 +260,15 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 			if (attackAnimTimer > 0) {
 				playAnim(currentAttackAnim);
 			} else if (!player.isGrounded()) {
+				howlAnimTimer = 0;
 				playAnim(player.vel.y < 0 ? "jump" : "fall");
 			} else if (dir !== 0) {
 				playAnim("run");
+			} else if (howlAnimTimer > 0 && state.transformed) {
+				playAnim("howl");
 			} else {
 				playAnim("idle");
 			}
-		}
-
-		if (state.transformed) {
-			aura.opacity = 0.25 + 0.18 * Math.sin(k.time() * 14);
 		}
 
 		if (invulnTimer > 0 && !isDashing) {
@@ -252,15 +277,11 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 				player.color = k.rgb(245, 220, 155);
 				player.opacity = 1;
 			} else {
-				player.color = state.transformed
-					? k.rgb(255, 130, 155)
-					: k.rgb(255, 255, 255);
+				player.color = k.rgb(255, 255, 255);
 				player.opacity = Math.floor(k.time() * 20) % 2 === 0 ? 0.4 : 1;
 			}
 		} else {
-			player.color = state.transformed
-				? k.rgb(255, 130, 155)
-				: k.rgb(255, 255, 255);
+			player.color = k.rgb(255, 255, 255);
 			player.opacity = 1;
 		}
 

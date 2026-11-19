@@ -20,7 +20,40 @@ export function loadAssets(): void {
 		},
 	});
 
+	k.loadSprite("werewolf", "sprites/werewolf.png", {
+		sliceX: 27,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 3, speed: 6, loop: true },
+			run: { from: 4, to: 9, speed: 12, loop: true },
+			jump: { from: 10, to: 11, speed: 10, loop: false },
+			fall: { from: 12, to: 13, speed: 8, loop: true },
+			attack: { from: 14, to: 17, speed: 14, loop: false },
+			dash: { from: 18, to: 20, speed: 18, loop: false },
+			howl: { from: 21, to: 23, speed: 8, loop: false },
+			death: { from: 24, to: 26, speed: 8, loop: false },
+		},
+	});
+
 	k.loadSprite("bullet", "sprites/bullet.png", {
+		sliceX: 5,
+		sliceY: 1,
+		anims: {
+			fly: { from: 0, to: 1, speed: 14, loop: true },
+			hit: { from: 2, to: 4, speed: 18, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-present-bullet", "sprites/enemy-present-bullet.png", {
+		sliceX: 5,
+		sliceY: 1,
+		anims: {
+			fly: { from: 0, to: 1, speed: 14, loop: true },
+			hit: { from: 2, to: 4, speed: 18, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-future-plasma", "sprites/enemy-future-plasma.png", {
 		sliceX: 5,
 		sliceY: 1,
 		anims: {
@@ -46,6 +79,77 @@ export function loadAssets(): void {
 			flash: { from: 6, to: 9, speed: 12, loop: false },
 			break: { from: 6, to: 11, speed: 14, loop: false },
 			empty: { from: 11, to: 11 },
+		},
+	});
+
+	k.loadSprite("enemy-past-grunt", "sprites/enemy-past-grunt.png", {
+		sliceX: 16,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 2, to: 5, speed: 8, loop: true },
+			attack: { from: 6, to: 9, speed: 10, loop: false },
+			hurt: { from: 10, to: 11, speed: 14, loop: false },
+			death: { from: 12, to: 15, speed: 10, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-past-brute", "sprites/enemy-past-brute.png", {
+		sliceX: 16,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 2, to: 5, speed: 7, loop: true },
+			attack: { from: 6, to: 9, speed: 9, loop: false },
+			hurt: { from: 10, to: 11, speed: 14, loop: false },
+			death: { from: 12, to: 15, speed: 10, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-present-shooter", "sprites/enemy-present-shooter.png", {
+		sliceX: 16,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 2, to: 5, speed: 8, loop: true },
+			attack: { from: 6, to: 9, speed: 10, loop: false },
+			hurt: { from: 10, to: 11, speed: 14, loop: false },
+			death: { from: 12, to: 15, speed: 10, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-present-drone", "sprites/enemy-present-drone.png", {
+		sliceX: 12,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 8, loop: true },
+			walk: { from: 2, to: 5, speed: 12, loop: true },
+			hurt: { from: 6, to: 7, speed: 14, loop: false },
+			death: { from: 8, to: 11, speed: 10, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-future-stalker", "sprites/enemy-future-stalker.png", {
+		sliceX: 16,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 2, to: 5, speed: 10, loop: true },
+			attack: { from: 6, to: 9, speed: 12, loop: false },
+			hurt: { from: 10, to: 11, speed: 14, loop: false },
+			death: { from: 12, to: 15, speed: 10, loop: false },
+		},
+	});
+
+	k.loadSprite("enemy-future-turret", "sprites/enemy-future-turret.png", {
+		sliceX: 16,
+		sliceY: 1,
+		anims: {
+			idle: { from: 0, to: 1, speed: 4, loop: true },
+			walk: { from: 2, to: 5, speed: 7, loop: true },
+			attack: { from: 6, to: 9, speed: 10, loop: false },
+			hurt: { from: 10, to: 11, speed: 14, loop: false },
+			death: { from: 12, to: 15, speed: 10, loop: false },
 		},
 	});
 
