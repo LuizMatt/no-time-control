@@ -285,6 +285,19 @@ export function loadAssets(): void {
 		k.loadSprite(name, path);
 	}
 
+	k.loadSprite("checkpoint-past", "sprites/checkpoint-past.png", {
+		sliceX: 2,
+		sliceY: 1,
+	});
+	k.loadSprite("checkpoint-present", "sprites/checkpoint-present.png", {
+		sliceX: 2,
+		sliceY: 1,
+	});
+	k.loadSprite("checkpoint-future", "sprites/checkpoint-future.png", {
+		sliceX: 2,
+		sliceY: 1,
+	});
+
 	k.loadSprite("intro-cutscene", "sprites/intro-cutscene.png");
 
 	const sfxList: ReadonlyArray<readonly [string, string]> = [
