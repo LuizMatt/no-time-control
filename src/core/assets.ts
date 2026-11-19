@@ -38,8 +38,6 @@ export function loadAssets(): void {
 		},
 	});
 
-	k.loadSprite("player-hit", "sprites/player-hit.png");
-
 	k.loadSprite("hearts", "sprites/hearts.png", {
 		sliceX: 6,
 		sliceY: 2,
