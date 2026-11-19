@@ -16,6 +16,7 @@ import { initSpecialMeter } from "../systems/specialMeter";
 import { buildStageEnvironment } from "../systems/stageBuilder";
 import { createHud } from "../ui/hud";
 import { initPauseMenu } from "../ui/pauseMenu";
+import { createWeaponHud } from "../ui/weaponHud";
 
 const BOSS_GATE_TX = 117;
 const CAM_LOOKAHEAD_Y = 48;
@@ -97,6 +98,7 @@ export function registerStageScene(): void {
 		spawnStageEnemies(STAGE_1, state.currentEra);
 		initSpecialMeter();
 		createHud();
+		createWeaponHud();
 		initPauseMenu();
 
 		const minCamX = SCREEN_WIDTH / 2;
