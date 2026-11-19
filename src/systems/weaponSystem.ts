@@ -78,6 +78,10 @@ export function applyHitToTarget(
 	const { damage, effective } = computeDamage(weaponEra, target.era, baseDamage);
 	target.hp = Math.max(0, target.hp - damage);
 
+	if (effective) {
+		k.shake(3);
+	}
+
 	const feedbackY = target.pos.y - (target.height ?? 40) - 16;
 	spawnDamageFeedback(target.pos.x, feedbackY, damage, effective);
 
