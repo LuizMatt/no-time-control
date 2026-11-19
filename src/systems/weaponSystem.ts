@@ -220,8 +220,19 @@ export function setupWeaponControls(player: WeaponHost): void {
 			);
 		} else {
 			const facing = player.getFacing();
+			const spriteName =
+				weapon.id === "w2"
+					? "bullet"
+					: weapon.id === "w3"
+						? "plasma"
+						: undefined;
+			const spawnXOffset = weapon.id === "w3" ? 34 : 28;
+			const spawnYOffset = weapon.id === "w3" ? 34 : 40;
 			spawnPlayerProjectile({
-				pos: k.vec2(player.pos.x + facing * 20, player.pos.y - 24),
+				pos: k.vec2(
+					player.pos.x + facing * spawnXOffset,
+					player.pos.y - spawnYOffset,
+				),
 				dir: facing,
 				speed: weapon.projectileSpeed ?? 620,
 				range: weapon.range,
@@ -229,6 +240,7 @@ export function setupWeaponControls(player: WeaponHost): void {
 				weaponEra: weapon.era,
 				piercing: Boolean(weapon.piercing),
 				color: weapon.color,
+				spriteName,
 				onHit: applyHitToTarget,
 			});
 		}

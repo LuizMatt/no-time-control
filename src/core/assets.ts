@@ -6,7 +6,7 @@ export function loadAssets(): void {
 
 	k.loadSprite("player", "sprites/player.png", {
 		sliceX: 10,
-		sliceY: 6,
+		sliceY: 8,
 		anims: {
 			idle: { from: 0, to: 4, speed: 6, loop: true },
 			run: { from: 10, to: 17, speed: 12, loop: true },
@@ -15,10 +15,28 @@ export function loadAssets(): void {
 			attack: { from: 30, to: 36, speed: 18, loop: false },
 			death: { from: 40, to: 45, speed: 9, loop: false },
 			dash: { from: 50, to: 54, speed: 28, loop: false },
+			attack_pistol: { from: 60, to: 65, speed: 20, loop: false },
+			attack_plasma: { from: 70, to: 75, speed: 15, loop: false },
 		},
 	});
 
-	k.loadSprite("player-hit", "sprites/player-hit.png");
+	k.loadSprite("bullet", "sprites/bullet.png", {
+		sliceX: 5,
+		sliceY: 1,
+		anims: {
+			fly: { from: 0, to: 1, speed: 14, loop: true },
+			hit: { from: 2, to: 4, speed: 18, loop: false },
+		},
+	});
+
+	k.loadSprite("plasma", "sprites/plasma.png", {
+		sliceX: 6,
+		sliceY: 1,
+		anims: {
+			fly: { from: 0, to: 2, speed: 14, loop: true },
+			hit: { from: 3, to: 5, speed: 18, loop: false },
+		},
+	});
 
 	k.loadSprite("hearts", "sprites/hearts.png", {
 		sliceX: 6,
