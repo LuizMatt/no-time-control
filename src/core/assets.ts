@@ -5,13 +5,16 @@ export function loadAssets(): void {
 	k.loadRoot("./");
 
 	k.loadSprite("player", "sprites/player.png", {
-		sliceX: 6,
-		sliceY: 4,
+		sliceX: 10,
+		sliceY: 6,
 		anims: {
-			idle: { from: 0, to: 3, speed: 6, loop: true },
-			run: { from: 6, to: 11, speed: 12, loop: true },
-			dash: { from: 12, to: 15, speed: 18, loop: false },
-			death: { from: 18, to: 23, speed: 10, loop: false },
+			idle: { from: 0, to: 4, speed: 6, loop: true },
+			run: { from: 10, to: 17, speed: 12, loop: true },
+			jump: { from: 22, to: 24, speed: 14, loop: false },
+			fall: { from: 25, to: 26, speed: 8, loop: true },
+			attack: { from: 30, to: 36, speed: 18, loop: false },
+			death: { from: 40, to: 45, speed: 9, loop: false },
+			dash: { from: 50, to: 54, speed: 28, loop: false },
 		},
 	});
 

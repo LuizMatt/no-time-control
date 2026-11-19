@@ -29,11 +29,13 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 	let dashCooldownTimer = 0;
 	let invulnTimer = 0;
 	let afterimageTimer = 0;
+	let attackAnimTimer = 0;
 	let isDead = false;
-	let currentAnim: "idle" | "run" | "dash" | "death" = "idle";
+	type PlayerAnim = "idle" | "run" | "jump" | "fall" | "attack" | "dash" | "death";
+	let currentAnim: PlayerAnim = "idle";
 
-	function playAnim(anim: "idle" | "run" | "dash" | "death"): void {
-		if (currentAnim === anim && player.getCurAnim()?.name === anim) return;
+	function playAnim(anim: PlayerAnim): void {
+		if (currentAnim === anim) return;
 		currentAnim = anim;
 		player.play(anim);
 	}
@@ -123,6 +125,13 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 
 	player.on("transform:start", () => applyTransformVisual(true));
 	player.on("transform:end", () => applyTransformVisual(false));
+	player.on("player:attack", () => {
+		if (!isDead && !isDashing) {
+			attackAnimTimer = 0.36;
+			currentAnim = "attack";
+			player.play("attack");
+		}
+	});
 	applyTransformVisual(state.transformed);
 
 	player.onCollideUpdate((obj) => {
@@ -155,6 +164,7 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 		const dt = k.dt();
 		dashCooldownTimer = Math.max(0, dashCooldownTimer - dt);
 		invulnTimer = Math.max(0, invulnTimer - dt);
+		attackAnimTimer = Math.max(0, attackAnimTimer - dt);
 
 		if (isDashing) {
 			dashTimer -= dt;
@@ -198,6 +208,13 @@ export function makePlayer(spawnPos: Vec2, fallDeathY = FALL_DEATH_Y) {
 				player.flipX = facing === -1;
 				const speed = PLAYER_SPEED * (state.transformed ? WEREWOLF_SPEED_MULT : 1);
 				player.move(dir * speed, 0);
+			}
+
+			if (attackAnimTimer > 0) {
+				playAnim("attack");
+			} else if (!player.isGrounded()) {
+				playAnim(player.vel.y < 0 ? "jump" : "fall");
+			} else if (dir !== 0) {
 				playAnim("run");
 			} else {
 				playAnim("idle");

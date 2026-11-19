@@ -103,19 +103,21 @@ function performMeleeSlash(
 	range: number,
 	baseDamage: number,
 	weaponEra: Era | "universal",
-	color: [number, number, number],
 ): void {
 	const facing = player.getFacing();
 	const hitIds = new Set<number>();
 	const slashHeight = weaponEra === "universal" ? 44 : 34;
 
 	const hitbox = k.add([
-		k.rect(range, slashHeight, { radius: 4 }),
 		k.pos(player.pos.x + facing * (range / 2 + 10), player.pos.y - 22),
 		k.anchor("center"),
-		k.area(),
-		k.color(...color),
-		k.opacity(weaponEra === "universal" ? 0.28 : 0.65),
+		k.area({
+			shape: new k.Rect(
+				k.vec2(-range / 2, -slashHeight / 2),
+				range,
+				slashHeight,
+			),
+		}),
 		k.z(16),
 		"playerMelee",
 	]);
@@ -157,7 +159,6 @@ function performMeleeSlash(
 			hitbox.pos.y = player.pos.y - 22;
 		}
 		const fade = Math.max(0, 1 - elapsed / duration);
-		hitbox.opacity = (weaponEra === "universal" ? 0.28 : 0.65) * fade;
 		for (const mark of clawMarks) {
 			mark.opacity = 0.95 * fade;
 		}
@@ -194,6 +195,8 @@ export function setupWeaponControls(player: WeaponHost): void {
 			return;
 		}
 
+		k.trigger("player:attack", "player");
+
 		if (state.transformed) {
 			cooldownTimer = WEREWOLF_COOLDOWN;
 			performMeleeSlash(
@@ -201,7 +204,6 @@ export function setupWeaponControls(player: WeaponHost): void {
 				WEREWOLF_RANGE,
 				WEREWOLF_DAMAGE,
 				"universal",
-				[255, 75, 110],
 			);
 			return;
 		}
@@ -215,7 +217,6 @@ export function setupWeaponControls(player: WeaponHost): void {
 				weapon.range,
 				weapon.damage,
 				weapon.era,
-				weapon.color,
 			);
 		} else {
 			const facing = player.getFacing();
