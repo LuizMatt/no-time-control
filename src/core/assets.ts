@@ -63,4 +63,25 @@ export function loadAssets(): void {
 	for (const [name, path] of pastProps) {
 		k.loadSprite(name, path);
 	}
+
+	const presentProps: ReadonlyArray<readonly [string, string]> = [
+		["present-prop-window", "sprites/props/present/window.png"],
+		["present-prop-door", "sprites/props/present/door.png"],
+		["present-prop-portal", "sprites/props/present/portal.png"],
+		["present-prop-light", "sprites/props/present/light.png"],
+		["present-prop-banner", "sprites/props/present/banner.png"],
+		["present-prop-banner-alt", "sprites/props/present/banner-alt.png"],
+		["present-prop-brazier", "sprites/props/present/brazier.png"],
+		["present-prop-crates", "sprites/props/present/crates.png"],
+		["present-prop-bookshelf", "sprites/props/present/bookshelf.png"],
+		["present-prop-stall", "sprites/props/present/stall.png"],
+		["present-prop-cage", "sprites/props/present/cage.png"],
+		["present-prop-arch", "sprites/props/present/arch.png"],
+		["present-prop-tower", "sprites/props/present/tower.png"],
+		["present-prop-gate", "sprites/props/present/gate.png"],
+	];
+
+	for (const [name, path] of presentProps) {
+		k.loadSprite(name, path);
+	}
 }
