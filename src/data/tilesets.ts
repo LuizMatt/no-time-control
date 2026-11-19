@@ -92,6 +92,27 @@ const PRESENT_PROPS: EraTilesetConfig["props"] = {
 	arenaGate: { sprite: "present-prop-gate", anchor: "bot" },
 };
 
+const FUTURE_PROPS: EraTilesetConfig["props"] = {
+	...LEVEL_01_FRAMES.props,
+	railingLeft: undefined,
+	railingMid: undefined,
+	railingRight: undefined,
+	window: { sprite: "future-prop-window", anchor: "center" },
+	light: { sprite: "future-prop-light", anchor: "center" },
+	door: { sprite: "future-prop-door", anchor: "bot" },
+	portal: { sprite: "future-prop-portal", anchor: "bot" },
+	banner: { sprite: "future-prop-banner", anchor: "top" },
+	bannerAlt: { sprite: "future-prop-banner-alt", anchor: "top" },
+	brazier: { sprite: "future-prop-brazier", anchor: "bot" },
+	crateStack: { sprite: "future-prop-crates", anchor: "bot" },
+	bookshelf: { sprite: "future-prop-bookshelf", anchor: "bot" },
+	stall: { sprite: "future-prop-stall", anchor: "bot" },
+	cage: { sprite: "future-prop-cage", anchor: "top" },
+	arch: { sprite: "future-prop-arch", anchor: "bot" },
+	tower: { sprite: "future-prop-tower", anchor: "bot", z: -3 },
+	arenaGate: { sprite: "future-prop-gate", anchor: "bot" },
+};
+
 export const ERA_TILESETS: Record<Era, EraTilesetConfig> = {
 	past: {
 		sprite: "past-tileset",
@@ -105,5 +126,10 @@ export const ERA_TILESETS: Record<Era, EraTilesetConfig> = {
 		innerBg: [16, 17, 18, 19],
 		props: PRESENT_PROPS,
 	},
-	future: { sprite: "future-tileset", ...LEVEL_01_FRAMES },
+	future: {
+		sprite: "future-tileset",
+		...LEVEL_01_FRAMES,
+		innerBg: [16, 17, 18, 19],
+		props: FUTURE_PROPS,
+	},
 };
