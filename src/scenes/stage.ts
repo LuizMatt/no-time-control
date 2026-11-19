@@ -41,6 +41,48 @@ export function registerStageScene(): void {
 			makeCheckpoint(cp, tileWidth, tileHeight);
 		}
 
+		const cp0 = STAGE_1.checkpoints[0];
+		const cp0WorldX = cp0.tx * tileWidth + tileWidth / 2 + 96;
+		const cp0WorldY = cp0.ty * tileHeight - 104;
+		k.add([
+			k.rect(520, 34, { radius: 4 }),
+			k.pos(cp0WorldX, cp0WorldY),
+			k.anchor("center"),
+			k.color(31, 14, 28),
+			k.outline(1, k.rgb(88, 69, 99)),
+			k.opacity(0.84),
+			k.z(4),
+		]);
+		k.add([
+			k.text(
+				"A/D Mover  |  ESPAÇO Pular  |  J Dash  |  H Atacar  |  1/2/3 Arma  |  Q Lobisomem",
+				{ size: 11 },
+			),
+			k.pos(cp0WorldX, cp0WorldY),
+			k.anchor("center"),
+			k.color(245, 237, 186),
+			k.z(5),
+		]);
+
+		// Smooth fade-in from dark when entering the stage
+		const entryFade = k.add([
+			k.rect(SCREEN_WIDTH, SCREEN_HEIGHT),
+			k.pos(0, 0),
+			k.color(10, 8, 16),
+			k.opacity(1),
+			k.fixed(),
+			k.z(200),
+		]);
+		let entryFadeElapsed = 0;
+		const entryFadeDuration = 0.4;
+		entryFade.onUpdate(() => {
+			entryFadeElapsed += k.dt();
+			entryFade.opacity = Math.max(0, 1 - entryFadeElapsed / entryFadeDuration);
+			if (entryFadeElapsed >= entryFadeDuration) {
+				entryFade.destroy();
+			}
+		});
+
 		const activeCp =
 			STAGE_1.checkpoints.find((c) => c.id === state.checkpointId) ??
 			STAGE_1.checkpoints[0];
@@ -181,6 +223,18 @@ export function registerStageScene(): void {
 				k.go("stage");
 			});
 		};
+
+		k.on("player:hurt", "player", () => {
+			k.shake(8);
+		});
+
+		k.on("transform:start", "player", () => {
+			k.shake(8);
+		});
+
+		k.on("boss:defeated", "boss", () => {
+			k.shake(12);
+		});
 
 		k.on("boss:victory", "boss", () => {
 			try {

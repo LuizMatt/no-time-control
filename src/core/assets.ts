@@ -264,4 +264,6 @@ export function loadAssets(): void {
 	for (const [name, path] of futureParallax) {
 		k.loadSprite(name, path);
 	}
+
+	k.loadSprite("intro-cutscene", "sprites/intro-cutscene.png");
 }
