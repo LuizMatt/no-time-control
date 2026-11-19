@@ -6,7 +6,7 @@ export const SCREEN_HEIGHT = 540;
 export const GRAVITY = 1400;
 export const PLAYER_SPEED = 260;
 export const JUMP_FORCE = 560;
-export const FALL_DEATH_Y = 900;
+export const FALL_DEATH_Y = 1050;
 
 // Dash
 export const DASH_SPEED = 680;

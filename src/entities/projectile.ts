@@ -23,6 +23,13 @@ export interface EnemyProjectileOpts {
 	color: [number, number, number];
 }
 
+function bindPlatformCollision(proj: GameObj): void {
+	proj.onCollide("platform", (obj: GameObj) => {
+		if (!proj.exists() || obj.is("oneway")) return;
+		proj.destroy();
+	});
+}
+
 /** Spawns a player projectile that damages combatTarget entities and respects piercing rules. */
 export function spawnPlayerProjectile(opts: PlayerProjectileOpts): GameObj {
 	const hitIds = new Set<number>();
@@ -52,10 +59,7 @@ export function spawnPlayerProjectile(opts: PlayerProjectileOpts): GameObj {
 		}
 	});
 
-	proj.onCollide("platform", () => {
-		if (!proj.exists()) return;
-		proj.destroy();
-	});
+	bindPlatformCollision(proj);
 
 	proj.onCollide("combatTarget", (obj: GameObj) => {
 		if (!proj.exists()) return;
@@ -100,10 +104,7 @@ export function spawnEnemyProjectile(opts: EnemyProjectileOpts): GameObj {
 		}
 	});
 
-	proj.onCollide("platform", () => {
-		if (!proj.exists()) return;
-		proj.destroy();
-	});
+	bindPlatformCollision(proj);
 
 	proj.onCollide("player", (playerObj: GameObj) => {
 		if (!proj.exists()) return;
