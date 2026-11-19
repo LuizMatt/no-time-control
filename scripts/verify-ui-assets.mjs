@@ -13,7 +13,7 @@ const EXPECTED = {
 const allowed = new Set(Object.values(PALETTE).map(([r, g, b]) => `${r},${g},${b}`));
 let failed = false;
 
-for (const name of [...Object.keys(EXPECTED), "controls.png"]) {
+for (const name of Object.keys(EXPECTED)) {
 	const file = path.join(DIR, name);
 	if (!fs.existsSync(file)) {
 		console.error(`MISSING ${name}`);

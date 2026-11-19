@@ -9,7 +9,6 @@ import {
 
 const OUT = "public/sprites/ui";
 const ICON_SIZE = 32;
-const CONTROLS_DOWNSCALE = 2;
 /** Pixels of frame border kept when painting the wolf icon background. */
 const FRAME_INSET = 4;
 
@@ -94,44 +93,4 @@ wolfHead.forEach((row, dy) => {
 });
 writeTokenPng(`${OUT}/weapon-wolf.png`, wolf.map((row) => row.join("")));
 
-/** Removes fully transparent outer rows and columns from a token grid. */
-function trimGrid(grid) {
-	let top = 0;
-	let bottom = grid.length - 1;
-	let left = grid[0].length;
-	let right = -1;
-	for (let y = 0; y < grid.length; y++) {
-		const row = grid[y];
-		for (let x = 0; x < row.length; x++) {
-			if (row[x] !== ".") {
-				if (x < left) left = x;
-				if (x > right) right = x;
-			}
-		}
-	}
-	while (top <= bottom && [...grid[top]].every((c) => c === ".")) top++;
-	while (bottom >= top && [...grid[bottom]].every((c) => c === ".")) bottom--;
-	return grid.slice(top, bottom + 1).map((row) => row.slice(left, right + 1));
-}
-
-// ---- Controls panel ----
-const controls = readJpeg("assets-src/ui/controls.jpg");
-const controlsBg = floodBackground(controls);
-const controlsBox = contentBox(controls, controlsBg, {
-	x: 0,
-	y: 0,
-	w: controls.width,
-	h: controls.height,
-});
-const controlsGrid = trimGrid(
-	downsample(
-		controls,
-		controlsBg,
-		controlsBox,
-		Math.round(controlsBox.w / CONTROLS_DOWNSCALE),
-		Math.round(controlsBox.h / CONTROLS_DOWNSCALE),
-	),
-);
-writeTokenPng(`${OUT}/controls.png`, controlsGrid);
-
-console.log(`Wrote UI assets to ${OUT} (controls ${controlsGrid[0].length}x${controlsGrid.length})`);
+console.log(`Wrote weapon UI assets to ${OUT}`);
