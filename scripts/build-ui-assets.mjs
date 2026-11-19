@@ -94,6 +94,67 @@ wolfHead.forEach((row, dy) => {
 });
 writeTokenPng(`${OUT}/weapon-wolf.png`, wolf.map((row) => row.join("")));
 
+/** Minimum cream ("W") pixels required to classify a connected component as a keycap. */
+const MIN_KEYCAP_FACE_PX = 100;
+
+/**
+ * Keycaps have large cream ("W") faces and keep their original dark-on-cream tokens.
+ * Floating text labels have no keycap face: recolor their dark ink ("K"/"P") to
+ * cream ("W") for contrast against dark stage skies, and clear enclosed checkerboard
+ * holes / fringe ("L"/"S"/stray "W"/etc.) to transparent (".").
+ */
+function recolorControlsLabels(grid) {
+	const height = grid.length;
+	const width = grid[0].length;
+	const cells = grid.map((row) => [...row]);
+	const visited = new Uint8Array(width * height);
+
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
+			const startIdx = y * width + x;
+			if (visited[startIdx] || cells[y][x] === ".") continue;
+
+			const component = [];
+			let creamFaceCount = 0;
+			const stack = [x, y];
+			visited[startIdx] = 1;
+
+			while (stack.length > 0) {
+				const cy = stack.pop();
+				const cx = stack.pop();
+				const token = cells[cy][cx];
+				if (token === "W") creamFaceCount++;
+				component.push(cx, cy);
+
+				for (const [dx, dy] of [
+					[1, 0],
+					[-1, 0],
+					[0, 1],
+					[0, -1],
+				]) {
+					const nx = cx + dx;
+					const ny = cy + dy;
+					if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+					const nIdx = ny * width + nx;
+					if (visited[nIdx] || cells[ny][nx] === ".") continue;
+					visited[nIdx] = 1;
+					stack.push(nx, ny);
+				}
+			}
+
+			if (creamFaceCount >= MIN_KEYCAP_FACE_PX) continue;
+			for (let i = 0; i < component.length; i += 2) {
+				const cx = component[i];
+				const cy = component[i + 1];
+				const token = cells[cy][cx];
+				cells[cy][cx] = token === "K" || token === "P" ? "W" : ".";
+			}
+		}
+	}
+
+	return cells.map((row) => row.join(""));
+}
+
 // ---- Controls panel ----
 const controls = readJpeg("assets-src/ui/controls.jpg");
 const controlsBg = floodBackground(controls);
@@ -103,12 +164,14 @@ const controlsBox = contentBox(controls, controlsBg, {
 	w: controls.width,
 	h: controls.height,
 });
-const controlsGrid = downsample(
-	controls,
-	controlsBg,
-	controlsBox,
-	Math.round(controlsBox.w / CONTROLS_DOWNSCALE),
-	Math.round(controlsBox.h / CONTROLS_DOWNSCALE),
+const controlsGrid = recolorControlsLabels(
+	downsample(
+		controls,
+		controlsBg,
+		controlsBox,
+		Math.round(controlsBox.w / CONTROLS_DOWNSCALE),
+		Math.round(controlsBox.h / CONTROLS_DOWNSCALE),
+	),
 );
 writeTokenPng(`${OUT}/controls.png`, controlsGrid);
 
