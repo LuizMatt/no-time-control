@@ -6,7 +6,7 @@ export const SCREEN_HEIGHT = 540;
 export const GRAVITY = 1400;
 export const PLAYER_SPEED = 260;
 export const JUMP_FORCE = 560;
-export const FALL_DEATH_Y = 1050;
+export const FALL_DEATH_Y = 1200;
 
 // Dash
 export const DASH_SPEED = 680;
@@ -15,7 +15,7 @@ export const DASH_COOLDOWN = 0.65;
 
 // Combat and era multiplier
 export const WRONG_ERA_MULT = 0.25;
-export const PLAYER_MAX_HP = 5;
+export const PLAYER_MAX_HP = 3;
 export const PLAYER_INVULN_TIME = 0.8;
 
 // Special meter and werewolf transformation
