@@ -35,6 +35,12 @@ export function loadAssets(): void {
 		},
 	});
 
+	k.loadSprite("ui-weapon-axe", "sprites/ui/weapon-axe.png");
+	k.loadSprite("ui-weapon-pistol", "sprites/ui/weapon-pistol.png");
+	k.loadSprite("ui-weapon-plasma", "sprites/ui/weapon-plasma.png");
+	k.loadSprite("ui-weapon-wolf", "sprites/ui/weapon-wolf.png");
+	k.loadSprite("ui-controls", "sprites/ui/controls.png");
+
 	k.loadSprite("bullet", "sprites/bullet.png", {
 		sliceX: 5,
 		sliceY: 1,
